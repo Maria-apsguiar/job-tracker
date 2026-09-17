@@ -370,4 +370,3 @@ formCandidatura.addEventListener(
 carregarDashboard();
 
 carregarCandidaturas();
-```
