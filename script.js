@@ -69,7 +69,6 @@ function renderizarCandidaturas() {
       )
     : candidaturas;
 
-
   if (candidaturasFiltradas.length === 0) {
 
     lista.innerHTML = `
@@ -81,7 +80,6 @@ function renderizarCandidaturas() {
     return;
   }
 
-
   lista.innerHTML = candidaturasFiltradas.map(candidatura => `
 
     <div class="candidatura-card">
@@ -90,6 +88,7 @@ function renderizarCandidaturas() {
 
         <div>
           <h3>${candidatura.vaga || 'Sem vaga'}</h3>
+
           <p class="empresa">
             ${candidatura.empresa || 'Empresa não informada'}
           </p>
@@ -101,31 +100,37 @@ function renderizarCandidaturas() {
 
       </div>
 
-
       <div class="candidatura-detalhes">
 
         <div>
           <span>Data</span>
-          <strong>${formatarData(candidatura.data_candidatura)}</strong>
+          <strong>
+            ${formatarData(candidatura.data_candidatura)}
+          </strong>
         </div>
 
         <div>
           <span>Modalidade</span>
-          <strong>${candidatura.modalidade || '-'}</strong>
+          <strong>
+            ${candidatura.modalidade || '-'}
+          </strong>
         </div>
 
         <div>
           <span>Contratação</span>
-          <strong>${candidatura.tipo_contratacao || '-'}</strong>
+          <strong>
+            ${candidatura.tipo_contratacao || '-'}
+          </strong>
         </div>
 
         <div>
           <span>Plataforma</span>
-          <strong>${candidatura.plataforma || '-'}</strong>
+          <strong>
+            ${candidatura.plataforma || '-'}
+          </strong>
         </div>
 
       </div>
-
 
       <div class="candidatura-footer">
 
@@ -183,10 +188,17 @@ document.getElementById('filtroStatus').addEventListener(
 // MODAL
 // ==============================
 
-const modal = document.getElementById('modalCandidatura');
-const abrirModalBtn = document.getElementById('novaCandidaturaBtn');
-const fecharModalBtn = document.getElementById('fecharModal');
-const cancelarModalBtn = document.getElementById('cancelarModal');
+const modal =
+  document.getElementById('modalCandidatura');
+
+const abrirModalBtn =
+  document.getElementById('novaCandidaturaBtn');
+
+const fecharModalBtn =
+  document.getElementById('fecharModal');
+
+const cancelarModalBtn =
+  document.getElementById('cancelarModal');
 
 
 function abrirModal() {
@@ -205,20 +217,32 @@ function fecharModal() {
 }
 
 
-abrirModalBtn.addEventListener('click', abrirModal);
+abrirModalBtn.addEventListener(
+  'click',
+  abrirModal
+);
 
-fecharModalBtn.addEventListener('click', fecharModal);
+fecharModalBtn.addEventListener(
+  'click',
+  fecharModal
+);
 
-cancelarModalBtn.addEventListener('click', fecharModal);
+cancelarModalBtn.addEventListener(
+  'click',
+  fecharModal
+);
 
 
-modal.addEventListener('click', function (evento) {
+modal.addEventListener(
+  'click',
+  function (evento) {
 
-  if (evento.target === modal) {
-    fecharModal();
+    if (evento.target === modal) {
+      fecharModal();
+    }
+
   }
-
-});
+);
 
 
 // ==============================
@@ -281,16 +305,16 @@ formCandidatura.addEventListener(
 
     try {
 
-      const resposta = await fetch(API_URL, {
+      const resposta = await fetch(
+        API_URL,
+        {
+          method: 'POST',
+          body: JSON.stringify(dados)
+        }
+      );
 
-        method: 'POST',
-
-        body: JSON.stringify(dados)
-
-      });
-
-
-      const resultado = await resposta.json();
+      const resultado =
+        await resposta.json();
 
 
       if (!resultado.sucesso) {
@@ -309,8 +333,6 @@ formCandidatura.addEventListener(
 
       fecharModal();
 
-
-      // Atualiza dashboard e lista
 
       await carregarDashboard();
 
@@ -347,119 +369,5 @@ formCandidatura.addEventListener(
 
 carregarDashboard();
 
-carregarCandidaturas();const cancelarModalBtn = document.getElementById('cancelarModal');
-
-
-function abrirModal() {
-  modal.classList.remove('hidden');
-
-  document.getElementById('data_candidatura').value =
-    new Date().toISOString().split('T')[0];
-
-  document.getElementById('empresa').focus();
-}
-
-
-function fecharModal() {
-  modal.classList.add('hidden');
-}
-
-
-abrirModalBtn.addEventListener('click', abrirModal);
-
-fecharModalBtn.addEventListener('click', fecharModal);
-
-cancelarModalBtn.addEventListener('click', fecharModal);
-
-
-// Fecha ao clicar fora do formulário
-
-modal.addEventListener('click', function (evento) {
-  if (evento.target === modal) {
-    fecharModal();
-  }
-});
-
-
-// ==============================
-// CRIAR CANDIDATURA
-// ==============================
-
-const formCandidatura = document.getElementById('formCandidatura');
-
-
-formCandidatura.addEventListener('submit', async function (evento) {
-
-  evento.preventDefault();
-
-  const botaoSalvar = formCandidatura.querySelector(
-    'button[type="submit"]'
-  );
-
-  botaoSalvar.disabled = true;
-  botaoSalvar.textContent = 'Salvando...';
-
-
-  const dados = {
-    empresa: document.getElementById('empresa').value,
-    vaga: document.getElementById('vaga').value,
-    data_candidatura: document.getElementById('data_candidatura').value,
-    salario_informado: document.getElementById('salario_informado').value,
-    tipo_contratacao: document.getElementById('tipo_contratacao').value,
-    modalidade: document.getElementById('modalidade').value,
-    localizacao: document.getElementById('localizacao').value,
-    plataforma: document.getElementById('plataforma').value,
-    link_vaga: document.getElementById('link_vaga').value,
-    observacoes: document.getElementById('observacoes').value
-  };
-
-
-  try {
-
-    const resposta = await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify(dados)
-    });
-
-    const resultado = await resposta.json();
-
-    if (!resultado.sucesso) {
-      throw new Error('Não foi possível salvar a candidatura.');
-    }
-
-
-    alert(
-      `Candidatura criada com sucesso!\nID: ${resultado.id_candidatura}`
-    );
-
-
-    formCandidatura.reset();
-
-    fecharModal();
-
-    carregarDashboard();
-
-
-  } catch (erro) {
-
-    console.error('Erro ao criar candidatura:', erro);
-
-    alert(
-      'Não foi possível salvar a candidatura. Verifique o console para mais detalhes.'
-    );
-
-  } finally {
-
-    botaoSalvar.disabled = false;
-    botaoSalvar.textContent = 'Salvar candidatura';
-
-  }
-
-});
-
-
-// ==============================
-// INICIALIZAÇÃO
-// ==============================
-
-carregarDashboard();
+carregarCandidaturas();
+```
