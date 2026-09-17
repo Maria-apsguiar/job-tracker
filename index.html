@@ -45,46 +45,120 @@
       </div>
     </section>
 
-    <!-- VISÃO GERAL -->
-    <section class="dashboard-visual">
+<!-- RITMO DE CANDIDATURAS -->
 
-      <div class="dashboard-panel">
-        <div class="panel-header">
-          <h2>Por status</h2>
-          <span>Distribuição das candidaturas</span>
-        </div>
+<section class="ritmo">
 
-        <div id="graficoStatus" class="grafico-lista"></div>
-      </div>
+  <div class="ritmo-header">
+    <div>
+      <h2>Ritmo de candidaturas</h2>
+      <p>Acompanhe seu volume de candidaturas ao longo do tempo</p>
+    </div>
+  </div>
 
-      <div class="dashboard-panel">
-        <div class="panel-header">
-          <h2>Por plataforma</h2>
-          <span>Origem das candidaturas</span>
-        </div>
+  <div class="ritmo-cards">
 
-        <div id="graficoPlataforma" class="grafico-lista"></div>
-      </div>
+    <div class="ritmo-card">
+      <span>Hoje</span>
+      <strong id="candidaturasHoje">0</strong>
+      <small>candidaturas</small>
+    </div>
 
-      <div class="dashboard-panel">
-        <div class="panel-header">
-          <h2>Por modalidade</h2>
-          <span>Formato de trabalho</span>
-        </div>
+    <div class="ritmo-card">
+      <span>Esta semana</span>
+      <strong id="candidaturasSemana">0</strong>
+      <small>candidaturas</small>
+    </div>
 
-        <div id="graficoModalidade" class="grafico-lista"></div>
-      </div>
+    <div class="ritmo-card">
+      <span>Este mês</span>
+      <strong id="candidaturasMes">0</strong>
+      <small>candidaturas</small>
+    </div>
 
-      <div class="dashboard-panel">
-        <div class="panel-header">
-          <h2>Por contratação</h2>
-          <span>Tipo de vínculo</span>
-        </div>
+  </div>
 
-        <div id="graficoContratacao" class="grafico-lista"></div>
-      </div>
+  <div class="dashboard-panel grafico-evolucao">
 
-    </section>
+    <div class="panel-header">
+      <h2>Evolução das candidaturas</h2>
+      <span>Últimos 30 dias</span>
+    </div>
+
+    <div
+      id="graficoEvolucao"
+      class="grafico-linha">
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ANÁLISES -->
+
+<section class="dashboard-visual">
+
+  <div class="dashboard-panel">
+
+    <div class="panel-header">
+      <h2>Por status</h2>
+      <span>Distribuição dos processos seletivos</span>
+    </div>
+
+    <div
+      id="graficoStatus"
+      class="grafico-lista">
+    </div>
+
+  </div>
+
+
+  <div class="dashboard-panel">
+
+    <div class="panel-header">
+      <h2>Por modalidade</h2>
+      <span>Formato de trabalho</span>
+    </div>
+
+    <div
+      id="graficoModalidade"
+      class="grafico-lista">
+    </div>
+
+  </div>
+
+
+  <div class="dashboard-panel">
+
+    <div class="panel-header">
+      <h2>Por contratação</h2>
+      <span>Tipo de vínculo</span>
+    </div>
+
+    <div
+      id="graficoContratacao"
+      class="grafico-lista">
+    </div>
+
+  </div>
+
+
+  <div class="dashboard-panel plataforma-resumo">
+
+    <div class="panel-header">
+      <h2>Onde estão as candidaturas?</h2>
+      <span>Plataforma utilizada no processo</span>
+    </div>
+
+    <div
+      id="resumoPlataforma"
+      class="plataforma-lista">
+    </div>
+
+  </div>
+
+</section>
 
     <!-- CANDIDATURAS -->
     <section class="candidaturas">
