@@ -62,12 +62,31 @@ function renderizarCandidaturas() {
   const lista = document.getElementById('listaCandidaturas');
 
   const filtro = document.getElementById('filtroStatus').value;
+  const ordenacao = document.getElementById('ordenacao').value;
 
-  const candidaturasFiltradas = filtro
+  let candidaturasFiltradas = filtro
     ? candidaturas.filter(
         candidatura => candidatura.status_atual === filtro
       )
-    : candidaturas;
+    : [...candidaturas];
+
+
+  // ==============================
+  // ORDENAÇÃO
+  // ==============================
+
+  candidaturasFiltradas.sort((a, b) => {
+
+    const dataA = obterDataCandidatura(a.data_candidatura);
+    const dataB = obterDataCandidatura(b.data_candidatura);
+
+    if (ordenacao === 'mais-antigas') {
+      return dataA - dataB;
+    }
+
+    return dataB - dataA;
+  });
+
 
   if (candidaturasFiltradas.length === 0) {
 
@@ -80,6 +99,7 @@ function renderizarCandidaturas() {
     return;
   }
 
+
   lista.innerHTML = candidaturasFiltradas.map(candidatura => `
 
     <div class="candidatura-card">
@@ -87,50 +107,77 @@ function renderizarCandidaturas() {
       <div class="candidatura-principal">
 
         <div>
-          <h3>${candidatura.vaga || 'Sem vaga'}</h3>
+
+          <h3>
+            ${candidatura.vaga || 'Sem vaga'}
+          </h3>
 
           <p class="empresa">
             ${candidatura.empresa || 'Empresa não informada'}
           </p>
+
         </div>
 
-        <span class="status">
-          ${candidatura.status_atual || 'Sem status'}
-        </span>
+
+        <select
+          class="status-select"
+          data-id="${candidatura.id_candidatura}"
+        >
+
+          ${gerarOpcoesStatus(candidatura.status_atual)}
+
+        </select>
 
       </div>
+
 
       <div class="candidatura-detalhes">
 
         <div>
+
           <span>Data</span>
+
           <strong>
             ${formatarData(candidatura.data_candidatura)}
           </strong>
+
         </div>
 
+
         <div>
+
           <span>Modalidade</span>
+
           <strong>
             ${candidatura.modalidade || '-'}
           </strong>
+
         </div>
 
+
         <div>
+
           <span>Contratação</span>
+
           <strong>
             ${candidatura.tipo_contratacao || '-'}
           </strong>
+
         </div>
 
+
         <div>
+
           <span>Plataforma</span>
+
           <strong>
             ${candidatura.plataforma || '-'}
           </strong>
+
         </div>
 
       </div>
+
 
       <div class="candidatura-footer">
 
@@ -140,9 +187,14 @@ function renderizarCandidaturas() {
 
         ${
           candidatura.link_vaga
-            ? `<a href="${candidatura.link_vaga}" target="_blank">
+            ? `
+              <a
+                href="${candidatura.link_vaga}"
+                target="_blank"
+                rel="noopener noreferrer">
                 Ver vaga
-              </a>`
+              </a>
+            `
             : ''
         }
 
@@ -151,12 +203,203 @@ function renderizarCandidaturas() {
     </div>
 
   `).join('');
+
+
+  adicionarEventosStatus();
 }
 
 
 // ==============================
-// FORMATAR DATA
+// OPÇÕES DE STATUS
 // ==============================
+
+function gerarOpcoesStatus(statusAtual) {
+
+  const status = [
+    ['candidatura enviada', 'Candidatura enviada'],
+    ['em análise', 'Em análise'],
+    ['entrevista rh', 'Entrevista RH'],
+    ['entrevista técnica', 'Entrevista técnica'],
+    ['teste técnico', 'Teste técnico'],
+    ['entrevista gestor', 'Entrevista gestor'],
+    ['proposta', 'Proposta'],
+    ['aprovado', 'Aprovado'],
+    ['negado', 'Negado'],
+    ['desisti', 'Desisti']
+  ];
+
+
+  return status.map(([valor, texto]) => `
+
+    <option
+      value="${valor}"
+      ${valor === statusAtual ? 'selected' : ''}
+    >
+      ${texto}
+    </option>
+
+  `).join('');
+}
+
+
+// ==============================
+// EVENTOS DE STATUS
+// ==============================
+
+function adicionarEventosStatus() {
+
+  const selects =
+    document.querySelectorAll('.status-select');
+
+
+  selects.forEach(select => {
+
+    select.addEventListener(
+      'change',
+      alterarStatus
+    );
+
+  });
+}
+
+
+// ==============================
+// ALTERAR STATUS
+// ==============================
+
+async function alterarStatus(evento) {
+
+  const select = evento.target;
+
+  const idCandidatura =
+    select.dataset.id;
+
+  const novoStatus =
+    select.value;
+
+
+  const candidatura =
+    candidaturas.find(
+      item => item.id_candidatura === idCandidatura
+    );
+
+
+  if (!candidatura) {
+    return;
+  }
+
+
+  const statusAnterior =
+    candidatura.status_atual;
+
+
+  if (statusAnterior === novoStatus) {
+    return;
+  }
+
+
+  select.disabled = true;
+
+
+  try {
+
+    const resposta = await fetch(
+      API_URL,
+      {
+        method: 'POST',
+
+        body: JSON.stringify({
+
+          acao: 'atualizar',
+
+          id_candidatura: idCandidatura,
+
+          status_atual: novoStatus
+
+        })
+      }
+    );
+
+
+    const resultado =
+      await resposta.json();
+
+
+    if (!resultado.sucesso) {
+
+      throw new Error(
+        'Não foi possível atualizar o status.'
+      );
+
+    }
+
+
+    candidatura.status_atual =
+      novoStatus;
+
+
+    await carregarDashboard();
+
+    renderizarCandidaturas();
+
+
+  } catch (erro) {
+
+    console.error(
+      'Erro ao atualizar status:',
+      erro
+    );
+
+
+    alert(
+      'Não foi possível atualizar o status.'
+    );
+
+
+    select.value =
+      statusAnterior;
+
+
+  } finally {
+
+    select.disabled = false;
+
+  }
+
+}
+
+
+// ==============================
+// DATA
+// ==============================
+
+function obterDataCandidatura(data) {
+
+  if (!data) {
+    return new Date(0);
+  }
+
+
+  const dataNormalizada =
+    String(data).substring(0, 10);
+
+
+  const partes =
+    dataNormalizada.split('-');
+
+
+  if (partes.length !== 3) {
+    return new Date(0);
+  }
+
+
+  return new Date(
+    Number(partes[0]),
+    Number(partes[1]) - 1,
+    Number(partes[2])
+  );
+}
+
 
 function formatarData(data) {
 
@@ -164,21 +407,35 @@ function formatarData(data) {
     return '-';
   }
 
-  const partes = data.split('-');
 
-  if (partes.length === 3) {
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  const dataNormalizada =
+    String(data).substring(0, 10);
+
+
+  const partes =
+    dataNormalizada.split('-');
+
+
+  if (partes.length !== 3) {
+    return '-';
   }
 
-  return data;
+
+  return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
 
 // ==============================
-// FILTRO
+// FILTROS
 // ==============================
 
 document.getElementById('filtroStatus').addEventListener(
+  'change',
+  renderizarCandidaturas
+);
+
+
+document.getElementById('ordenacao').addEventListener(
   'change',
   renderizarCandidaturas
 );
@@ -213,7 +470,9 @@ function abrirModal() {
 
 
 function fecharModal() {
+
   modal.classList.add('hidden');
+
 }
 
 
@@ -222,10 +481,12 @@ abrirModalBtn.addEventListener(
   abrirModal
 );
 
+
 fecharModalBtn.addEventListener(
   'click',
   fecharModal
 );
+
 
 cancelarModalBtn.addEventListener(
   'click',
@@ -259,13 +520,17 @@ formCandidatura.addEventListener(
 
     evento.preventDefault();
 
+
     const botaoSalvar =
       formCandidatura.querySelector(
         'button[type="submit"]'
       );
 
+
     botaoSalvar.disabled = true;
-    botaoSalvar.textContent = 'Salvando...';
+
+    botaoSalvar.textContent =
+      'Salvando...';
 
 
     const dados = {
@@ -313,14 +578,17 @@ formCandidatura.addEventListener(
         }
       );
 
+
       const resultado =
         await resposta.json();
 
 
       if (!resultado.sucesso) {
+
         throw new Error(
           'Não foi possível salvar a candidatura.'
         );
+
       }
 
 
@@ -346,9 +614,11 @@ formCandidatura.addEventListener(
         erro
       );
 
+
       alert(
         'Não foi possível salvar a candidatura.'
       );
+
 
     } finally {
 
