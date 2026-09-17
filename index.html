@@ -12,7 +12,7 @@
   <header class="header">
     <div>
       <h1>Job Tracker</h1>
-      <p>Acompanhe suas candidaturas em um só lugar</p>
+      <p>Acompanhe seus processos seletivos em um só lugar</p>
     </div>
 
     <button id="novaCandidaturaBtn">
@@ -21,6 +21,8 @@
   </header>
 
   <main class="container">
+
+    <!-- DASHBOARD -->
 
     <section class="dashboard">
 
@@ -46,46 +48,64 @@
 
     </section>
 
+
+    <!-- CANDIDATURAS -->
+
     <section class="candidaturas">
 
       <div class="section-header">
+
         <div>
           <h2>Candidaturas</h2>
-          <p>Acompanhe o andamento dos seus processos seletivos</p>
         </div>
 
-        <select id="filtroStatus">
-          <option value="">Todos os status</option>
-          <option value="candidatura enviada">Candidatura enviada</option>
-          <option value="em análise">Em análise</option>
-          <option value="entrevista rh">Entrevista RH</option>
-          <option value="entrevista técnica">Entrevista técnica</option>
-          <option value="teste técnico">Teste técnico</option>
-          <option value="entrevista gestor">Entrevista gestor</option>
-          <option value="proposta">Proposta</option>
-          <option value="aprovado">Aprovado</option>
-          <option value="negado">Negado</option>
-          <option value="desisti">Desisti</option>
-        </select>
+        <div class="filtros">
+
+          <select id="filtroStatus">
+            <option value="">Todos os status</option>
+            <option value="candidatura enviada">Candidatura enviada</option>
+            <option value="em análise">Em análise</option>
+            <option value="entrevista rh">Entrevista RH</option>
+            <option value="entrevista técnica">Entrevista técnica</option>
+            <option value="teste técnico">Teste técnico</option>
+            <option value="entrevista gestor">Entrevista gestor</option>
+            <option value="proposta">Proposta</option>
+            <option value="aprovado">Aprovado</option>
+            <option value="negado">Negado</option>
+            <option value="desisti">Desisti</option>
+          </select>
+
+          <select id="ordenacao">
+            <option value="mais-recentes">Mais recentes</option>
+            <option value="mais-antigas">Mais antigas</option>
+          </select>
+
+        </div>
+
       </div>
 
+
       <div id="listaCandidaturas" class="lista-candidaturas">
+
         <p class="empty-state">
           Nenhuma candidatura carregada.
         </p>
+
       </div>
 
     </section>
 
   </main>
 
-  <!-- Modal de nova candidatura -->
+
+  <!-- MODAL DE NOVA CANDIDATURA -->
 
   <div id="modalCandidatura" class="modal hidden">
 
     <div class="modal-content">
 
       <div class="modal-header">
+
         <div>
           <h2>Nova candidatura</h2>
           <p>Cadastre uma nova oportunidade</p>
@@ -94,7 +114,9 @@
         <button id="fecharModal" class="btn-fechar">
           ×
         </button>
+
       </div>
+
 
       <form id="formCandidatura">
 
@@ -122,7 +144,9 @@
 
           <div class="campo">
             <label for="tipo_contratacao">Tipo de contratação</label>
+
             <select id="tipo_contratacao">
+
               <option value="">Selecione</option>
               <option value="clt">CLT</option>
               <option value="pj">PJ</option>
@@ -130,27 +154,39 @@
               <option value="estágio">Estágio</option>
               <option value="freelancer">Freelancer</option>
               <option value="outro">Outro</option>
+
             </select>
+
           </div>
 
           <div class="campo">
+
             <label for="modalidade">Modalidade</label>
+
             <select id="modalidade">
+
               <option value="">Selecione</option>
               <option value="remoto">Remoto</option>
               <option value="híbrido">Híbrido</option>
               <option value="presencial">Presencial</option>
+
             </select>
+
           </div>
 
           <div class="campo">
+
             <label for="localizacao">Localização</label>
             <input type="text" id="localizacao">
+
           </div>
 
           <div class="campo">
+
             <label for="plataforma">Plataforma</label>
+
             <select id="plataforma">
+
               <option value="">Selecione</option>
               <option value="linkedin">LinkedIn</option>
               <option value="gupy">Gupy</option>
@@ -161,28 +197,40 @@
               <option value="site da empresa">Site da empresa</option>
               <option value="indicação">Indicação</option>
               <option value="outro">Outro</option>
+
             </select>
+
           </div>
 
           <div class="campo campo-completo">
+
             <label for="link_vaga">Link da vaga</label>
             <input type="url" id="link_vaga">
+
           </div>
 
           <div class="campo campo-completo">
+
             <label for="observacoes">Observações</label>
             <textarea id="observacoes" rows="3"></textarea>
+
           </div>
 
         </div>
 
+
         <div class="modal-footer">
 
-          <button type="button" id="cancelarModal" class="btn-secundario">
+          <button
+            type="button"
+            id="cancelarModal"
+            class="btn-secundario">
             Cancelar
           </button>
 
-          <button type="submit" class="btn-principal">
+          <button
+            type="submit"
+            class="btn-principal">
             Salvar candidatura
           </button>
 
@@ -194,53 +242,6 @@
 
   </div>
 
-  <script src="script.js"></script>
-
-</body>
-</html>      <div class="card">
-        <span>Com retorno</span>
-        <strong id="comRetorno">0%</strong>
-      </div>
-
-      <div class="card">
-        <span>Aprovadas</span>
-        <strong id="aprovadas">0</strong>
-      </div>
-
-    </section>
-
-    <section class="candidaturas">
-
-      <div class="section-header">
-        <div>
-          <h2>Candidaturas</h2>
-          <p>Acompanhe o andamento dos seus processos seletivos</p>
-        </div>
-
-        <select id="filtroStatus">
-          <option value="">Todos os status</option>
-          <option value="candidatura enviada">Candidatura enviada</option>
-          <option value="em análise">Em análise</option>
-          <option value="entrevista rh">Entrevista RH</option>
-          <option value="entrevista técnica">Entrevista técnica</option>
-          <option value="teste técnico">Teste técnico</option>
-          <option value="entrevista gestor">Entrevista gestor</option>
-          <option value="proposta">Proposta</option>
-          <option value="aprovado">Aprovado</option>
-          <option value="negado">Negado</option>
-          <option value="desisti">Desisti</option>
-        </select>
-      </div>
-
-      <div id="listaCandidaturas" class="lista-candidaturas">
-        <p class="empty-state">
-          Nenhuma candidatura carregada.
-        </p>
-      </div>
-
-    </section>
-
-  </main>
 
   <script src="script.js"></script>
 
