@@ -264,3 +264,97 @@ button:disabled {
     padding: 20px;
   }
 }
+
+.candidatura-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 14px;
+  background: #ffffff;
+}
+
+.candidatura-principal {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.candidatura-principal h3 {
+  margin-bottom: 5px;
+  font-size: 17px;
+}
+
+.empresa {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.status {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.candidatura-detalhes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.candidatura-detalhes span {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.candidatura-detalhes strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.candidatura-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 18px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.candidatura-footer a {
+  color: #111827;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.candidatura-footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 700px) {
+
+  .candidatura-detalhes {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+@media (max-width: 450px) {
+
+  .candidatura-principal {
+    flex-direction: column;
+  }
+
+  .candidatura-detalhes {
+    grid-template-columns: 1fr;
+  }
+
+}
