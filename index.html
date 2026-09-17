@@ -4,9 +4,82 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Job Tracker</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <h1>Job Tracker</h1>
-  <p>Aplicação para acompanhamento de candidaturas.</p>
+
+  <header class="header">
+    <div>
+      <h1>Job Tracker</h1>
+      <p>Acompanhe suas candidaturas em um só lugar</p>
+    </div>
+
+    <button id="novaCandidaturaBtn">
+      + Nova candidatura
+    </button>
+  </header>
+
+  <main class="container">
+
+    <section class="dashboard">
+
+      <div class="card">
+        <span>Total de candidaturas</span>
+        <strong id="totalCandidaturas">0</strong>
+      </div>
+
+      <div class="card">
+        <span>Em andamento</span>
+        <strong id="emAndamento">0</strong>
+      </div>
+
+      <div class="card">
+        <span>Com retorno</span>
+        <strong id="comRetorno">0%</strong>
+      </div>
+
+      <div class="card">
+        <span>Aprovadas</span>
+        <strong id="aprovadas">0</strong>
+      </div>
+
+    </section>
+
+    <section class="candidaturas">
+
+      <div class="section-header">
+        <div>
+          <h2>Candidaturas</h2>
+          <p>Acompanhe o andamento dos seus processos seletivos</p>
+        </div>
+
+        <select id="filtroStatus">
+          <option value="">Todos os status</option>
+          <option value="candidatura enviada">Candidatura enviada</option>
+          <option value="em análise">Em análise</option>
+          <option value="entrevista rh">Entrevista RH</option>
+          <option value="entrevista técnica">Entrevista técnica</option>
+          <option value="teste técnico">Teste técnico</option>
+          <option value="entrevista gestor">Entrevista gestor</option>
+          <option value="proposta">Proposta</option>
+          <option value="aprovado">Aprovado</option>
+          <option value="negado">Negado</option>
+          <option value="desisti">Desisti</option>
+        </select>
+      </div>
+
+      <div id="listaCandidaturas" class="lista-candidaturas">
+        <p class="empty-state">
+          Nenhuma candidatura carregada.
+        </p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+
 </body>
 </html>
