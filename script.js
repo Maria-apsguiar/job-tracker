@@ -7,30 +7,62 @@ let candidaturas = [];
 ========================= */
 
 async function carregarDashboard() {
-  try {
-    const resposta = await fetch(`${API_URL}?dashboard=true`);
-    const dados = await resposta.json();
 
-    document.getElementById('totalCandidaturas').textContent =
+  try {
+
+    const resposta =
+      await fetch(`${API_URL}?dashboard=true`);
+
+    const dados =
+      await resposta.json();
+
+
+    /* INDICADORES */
+
+    document.getElementById(
+      'totalCandidaturas'
+    ).textContent =
       dados.total_candidaturas;
 
-    document.getElementById('emAndamento').textContent =
+    document.getElementById(
+      'emAndamento'
+    ).textContent =
       dados.em_andamento;
 
-    document.getElementById('comRetorno').textContent =
+    document.getElementById(
+      'comRetorno'
+    ).textContent =
       `${dados.taxa_retorno}%`;
 
-    document.getElementById('aprovadas').textContent =
+    document.getElementById(
+      'aprovadas'
+    ).textContent =
       dados.aprovadas;
+
+
+    /* RITMO */
+
+    document.getElementById(
+      'candidaturasHoje'
+    ).textContent =
+      dados.ritmo.hoje;
+
+    document.getElementById(
+      'candidaturasSemana'
+    ).textContent =
+      dados.ritmo.semana;
+
+    document.getElementById(
+      'candidaturasMes'
+    ).textContent =
+      dados.ritmo.mes;
+
+
+    /* DISTRIBUIÇÕES */
 
     renderizarBarras(
       'graficoStatus',
       dados.por_status
-    );
-
-    renderizarBarras(
-      'graficoPlataforma',
-      dados.por_plataforma
     );
 
     renderizarBarras(
@@ -43,92 +75,386 @@ async function carregarDashboard() {
       dados.por_tipo_contratacao
     );
 
+
+    /* PLATAFORMAS */
+
+    renderizarResumoPlataforma(
+      dados.por_plataforma
+    );
+
+
+    /* EVOLUÇÃO */
+
+    renderizarGraficoEvolucao(
+      dados.evolucao_diaria
+    );
+
+
   } catch (erro) {
+
     console.error(
       'Erro ao carregar dashboard:',
       erro
     );
+
   }
+
 }
 
-function renderizarBarras(elementoId, dados) {
+
+/* =========================
+   GRÁFICOS / VISUALIZAÇÕES
+========================= */
+
+function renderizarBarras(
+  elementoId,
+  dados
+) {
+
   const elemento =
-    document.getElementById(elementoId);
+    document.getElementById(
+      elementoId
+    );
 
   if (!elemento) {
     return;
   }
 
+
   const entradas =
-    Object.entries(dados || {});
+    Object.entries(
+      dados || {}
+    );
+
 
   if (entradas.length === 0) {
+
     elemento.innerHTML = `
       <p class="empty-state">
         Sem dados disponíveis.
       </p>
     `;
+
     return;
   }
+
 
   entradas.sort(
     (a, b) => b[1] - a[1]
   );
 
+
   const maiorValor =
-    Math.max(...entradas.map(item => item[1]));
+    Math.max(
+      ...entradas.map(
+        item => item[1]
+      )
+    );
+
 
   elemento.innerHTML =
-    entradas.map(([nome, valor]) => {
+    entradas.map(
+      ([nome, valor]) => {
 
-      const percentual =
-        maiorValor > 0
-          ? (valor / maiorValor) * 100
-          : 0;
+        const percentual =
+          maiorValor > 0
+            ? (valor / maiorValor) * 100
+            : 0;
 
-      return `
-        <div class="barra-item">
 
-          <div class="barra-legenda">
-            <span>${formatarRotulo(nome)}</span>
-            <strong>${valor}</strong>
-          </div>
+        return `
+          <div class="barra-item">
 
-          <div class="barra-trilha">
-            <div
-              class="barra-preenchimento"
-              style="width: ${percentual}%">
+            <div class="barra-legenda">
+
+              <span>
+                ${formatarRotulo(nome)}
+              </span>
+
+              <strong>
+                ${valor}
+              </strong>
+
             </div>
+
+
+            <div class="barra-trilha">
+
+              <div
+                class="barra-preenchimento"
+                style="width: ${percentual}%">
+              </div>
+
+            </div>
+
           </div>
+        `;
 
-        </div>
-      `;
+      }
+    ).join('');
 
-    }).join('');
 }
 
-function formatarRotulo(texto) {
+
+function renderizarResumoPlataforma(
+  dados
+) {
+
+  const elemento =
+    document.getElementById(
+      'resumoPlataforma'
+    );
+
+
+  if (!elemento) {
+    return;
+  }
+
+
+  const entradas =
+    Object.entries(
+      dados || {}
+    );
+
+
+  if (entradas.length === 0) {
+
+    elemento.innerHTML = `
+      <p class="empty-state">
+        Sem dados disponíveis.
+      </p>
+    `;
+
+    return;
+  }
+
+
+  entradas.sort(
+    (a, b) => b[1] - a[1]
+  );
+
+
+  elemento.innerHTML =
+    entradas.map(
+      ([nome, quantidade]) => {
+
+        return `
+          <div class="plataforma-item">
+
+            <span>
+              ${formatarRotulo(nome)}
+            </span>
+
+            <strong>
+              ${quantidade}
+            </strong>
+
+          </div>
+        `;
+
+      }
+    ).join('');
+
+}
+
+
+function renderizarGraficoEvolucao(
+  dados
+) {
+
+  const elemento =
+    document.getElementById(
+      'graficoEvolucao'
+    );
+
+
+  if (!elemento || !dados) {
+    return;
+  }
+
+
+  const maiorValor =
+    Math.max(
+      ...dados.map(
+        item => item.quantidade
+      ),
+      1
+    );
+
+
+  elemento.innerHTML = `
+
+    <div class="grafico-colunas">
+
+      ${dados.map(
+        item => {
+
+          const altura =
+            (item.quantidade / maiorValor) * 100;
+
+
+          return `
+
+            <div
+              class="coluna-item"
+              title="${item.data}: ${item.quantidade} candidatura(s)"
+            >
+
+              <div class="coluna-valor">
+                ${
+                  item.quantidade > 0
+                    ? item.quantidade
+                    : ''
+                }
+              </div>
+
+
+              <div class="coluna-trilha">
+
+                <div
+                  class="coluna-preenchimento"
+                  style="height: ${altura}%">
+                </div>
+
+              </div>
+
+
+              <span>
+                ${item.data}
+              </span>
+
+            </div>
+
+          `;
+
+        }
+      ).join('')}
+
+    </div>
+
+  `;
+
+}
+
+
+function formatarRotulo(
+  texto
+) {
+
   if (!texto) {
     return '-';
   }
 
-  return texto.charAt(0).toUpperCase() +
-    texto.slice(1);
+
+  const rotulos = {
+
+    'candidatura enviada':
+      'Candidatura enviada',
+
+    'em análise':
+      'Em análise',
+
+    'entrevista rh':
+      'Entrevista RH',
+
+    'entrevista técnica':
+      'Entrevista técnica',
+
+    'teste técnico':
+      'Teste técnico',
+
+    'entrevista gestor':
+      'Entrevista gestor',
+
+    'proposta':
+      'Proposta',
+
+    'aprovado':
+      'Aprovado',
+
+    'negado':
+      'Negado',
+
+    'desisti':
+      'Desisti',
+
+    'clt':
+      'CLT',
+
+    'pj':
+      'PJ',
+
+    'temporário':
+      'Temporário',
+
+    'estágio':
+      'Estágio',
+
+    'freelancer':
+      'Freelancer',
+
+    'remoto':
+      'Remoto',
+
+    'híbrido':
+      'Híbrido',
+
+    'presencial':
+      'Presencial',
+
+    'linkedin':
+      'LinkedIn',
+
+    'gupy':
+      'Gupy',
+
+    'vagas.com':
+      'Vagas.com',
+
+    'infojobs':
+      'InfoJobs',
+
+    'indeed':
+      'Indeed',
+
+    'glassdoor':
+      'Glassdoor',
+
+    'site da empresa':
+      'Site da empresa',
+
+    'indicação':
+      'Indicação'
+
+  };
+
+
+  return (
+    rotulos[texto] ||
+    texto.charAt(0).toUpperCase() +
+    texto.slice(1)
+  );
+
 }
+
 
 /* =========================
    CANDIDATURAS
 ========================= */
 
 async function carregarCandidaturas() {
+
   try {
+
     const resposta =
       await fetch(API_URL);
 
     candidaturas =
       await resposta.json();
 
+
     renderizarCandidaturas();
+
 
   } catch (erro) {
 
@@ -137,15 +463,21 @@ async function carregarCandidaturas() {
       erro
     );
 
+
     document.getElementById(
       'listaCandidaturas'
     ).innerHTML = `
+
       <p class="empty-state">
         Não foi possível carregar as candidaturas.
       </p>
+
     `;
+
   }
+
 }
+
 
 function renderizarCandidaturas() {
 
@@ -154,15 +486,18 @@ function renderizarCandidaturas() {
       'listaCandidaturas'
     );
 
+
   const filtro =
     document.getElementById(
       'filtroStatus'
     ).value;
 
+
   const ordenacao =
     document.getElementById(
       'ordenacao'
     ).value;
+
 
   let candidaturasFiltradas =
     filtro
@@ -172,6 +507,7 @@ function renderizarCandidaturas() {
         )
       : [...candidaturas];
 
+
   candidaturasFiltradas.sort(
     (a, b) => {
 
@@ -180,163 +516,293 @@ function renderizarCandidaturas() {
           a.data_candidatura
         );
 
+
       const dataB =
         obterDataCandidatura(
           b.data_candidatura
         );
 
-      if (ordenacao === 'mais-antigas') {
+
+      if (
+        ordenacao ===
+        'mais-antigas'
+      ) {
+
         return dataA - dataB;
+
       }
 
+
       return dataB - dataA;
+
     }
   );
 
-  if (candidaturasFiltradas.length === 0) {
+
+  if (
+    candidaturasFiltradas.length === 0
+  ) {
 
     lista.innerHTML = `
+
       <p class="empty-state">
         Nenhuma candidatura encontrada.
       </p>
+
     `;
 
     return;
+
   }
+
 
   lista.innerHTML =
     candidaturasFiltradas.map(
       candidatura => `
 
-      <div class="candidatura-card">
+        <div class="candidatura-card">
 
-        <div class="candidatura-principal">
+          <div class="candidatura-principal">
 
-          <div>
-            <h3>
-              ${candidatura.vaga || 'Sem vaga'}
-            </h3>
+            <div>
 
-            <p class="empresa">
-              ${candidatura.empresa || 'Empresa não informada'}
-            </p>
-          </div>
+              <h3>
+                ${
+                  candidatura.vaga ||
+                  'Sem vaga'
+                }
+              </h3>
 
-          <select
-            class="status-select"
-            data-id="${candidatura.id_candidatura}">
-            ${gerarOpcoesStatus(
-              candidatura.status_atual
-            )}
-          </select>
 
-        </div>
+              <p class="empresa">
 
-        <div class="candidatura-detalhes">
+                ${
+                  candidatura.empresa ||
+                  'Empresa não informada'
+                }
 
-          <div>
-            <span>Data</span>
-            <strong>
-              ${formatarData(
-                candidatura.data_candidatura
+              </p>
+
+            </div>
+
+
+            <select
+              class="status-select"
+              data-id="${
+                candidatura.id_candidatura
+              }">
+
+              ${gerarOpcoesStatus(
+                candidatura.status_atual
               )}
-            </strong>
+
+            </select>
+
           </div>
 
-          <div>
-            <span>Modalidade</span>
-            <strong>
-              ${candidatura.modalidade || '-'}
-            </strong>
+
+          <div class="candidatura-detalhes">
+
+            <div>
+
+              <span>
+                Data
+              </span>
+
+              <strong>
+
+                ${
+                  formatarData(
+                    candidatura.data_candidatura
+                  )
+                }
+
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Modalidade
+              </span>
+
+              <strong>
+
+                ${
+                  candidatura.modalidade ||
+                  '-'
+                }
+
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Contratação
+              </span>
+
+              <strong>
+
+                ${
+                  formatarRotulo(
+                    candidatura.tipo_contratacao
+                  ) || '-'
+                }
+
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Plataforma
+              </span>
+
+              <strong>
+
+                ${
+                  formatarRotulo(
+                    candidatura.plataforma
+                  ) || '-'
+                }
+
+              </strong>
+
+            </div>
+
           </div>
 
-          <div>
-            <span>Contratação</span>
-            <strong>
-              ${candidatura.tipo_contratacao || '-'}
-            </strong>
-          </div>
 
-          <div>
-            <span>Plataforma</span>
-            <strong>
-              ${candidatura.plataforma || '-'}
-            </strong>
+          <div class="candidatura-footer">
+
+            <span>
+
+              ID:
+              ${candidatura.id_candidatura}
+
+            </span>
+
+
+            ${
+              candidatura.link_vaga
+                ? `
+
+                  <a
+                    href="${candidatura.link_vaga}"
+                    target="_blank"
+                    rel="noopener noreferrer">
+
+                    Ver vaga
+
+                  </a>
+
+                `
+                : ''
+            }
+
           </div>
 
         </div>
 
-        <div class="candidatura-footer">
-
-          <span>
-            ID: ${candidatura.id_candidatura}
-          </span>
-
-          ${
-            candidatura.link_vaga
-              ? `
-                <a
-                  href="${candidatura.link_vaga}"
-                  target="_blank"
-                  rel="noopener noreferrer">
-                  Ver vaga
-                </a>
-              `
-              : ''
-          }
-
-        </div>
-
-      </div>
-
-    `
+      `
     ).join('');
 
+
   adicionarEventosStatus();
+
 }
+
 
 /* =========================
    STATUS
 ========================= */
 
-function gerarOpcoesStatus(statusAtual) {
+function gerarOpcoesStatus(
+  statusAtual
+) {
 
   const status = [
 
-    ['candidatura enviada', 'Candidatura enviada'],
+    [
+      'candidatura enviada',
+      'Candidatura enviada'
+    ],
 
-    ['em análise', 'Em análise'],
+    [
+      'em análise',
+      'Em análise'
+    ],
 
-    ['entrevista rh', 'Entrevista RH'],
+    [
+      'entrevista rh',
+      'Entrevista RH'
+    ],
 
-    ['entrevista técnica', 'Entrevista técnica'],
+    [
+      'entrevista técnica',
+      'Entrevista técnica'
+    ],
 
-    ['teste técnico', 'Teste técnico'],
+    [
+      'teste técnico',
+      'Teste técnico'
+    ],
 
-    ['entrevista gestor', 'Entrevista gestor'],
+    [
+      'entrevista gestor',
+      'Entrevista gestor'
+    ],
 
-    ['proposta', 'Proposta'],
+    [
+      'proposta',
+      'Proposta'
+    ],
 
-    ['aprovado', 'Aprovado'],
+    [
+      'aprovado',
+      'Aprovado'
+    ],
 
-    ['negado', 'Negado'],
+    [
+      'negado',
+      'Negado'
+    ],
 
-    ['desisti', 'Desisti']
+    [
+      'desisti',
+      'Desisti'
+    ]
 
   ];
+
 
   return status.map(
     ([valor, texto]) => `
 
       <option
         value="${valor}"
-        ${valor === statusAtual ? 'selected' : ''}>
+        ${
+          valor === statusAtual
+            ? 'selected'
+            : ''
+        }>
+
         ${texto}
+
       </option>
 
     `
   ).join('');
+
 }
+
 
 function adicionarEventosStatus() {
 
@@ -344,6 +810,7 @@ function adicionarEventosStatus() {
     document.querySelectorAll(
       '.status-select'
     );
+
 
   selects.forEach(
     select => {
@@ -355,18 +822,25 @@ function adicionarEventosStatus() {
 
     }
   );
+
 }
 
-async function alterarStatus(evento) {
+
+async function alterarStatus(
+  evento
+) {
 
   const select =
     evento.target;
 
+
   const idCandidatura =
     select.dataset.id;
 
+
   const novoStatus =
     select.value;
+
 
   const candidatura =
     candidaturas.find(
@@ -375,18 +849,28 @@ async function alterarStatus(evento) {
         idCandidatura
     );
 
+
   if (!candidatura) {
     return;
   }
 
+
   const statusAnterior =
     candidatura.status_atual;
 
-  if (statusAnterior === novoStatus) {
+
+  if (
+    statusAnterior ===
+    novoStatus
+  ) {
+
     return;
+
   }
 
+
   select.disabled = true;
+
 
   try {
 
@@ -397,17 +881,24 @@ async function alterarStatus(evento) {
           method: 'POST',
 
           body: JSON.stringify({
-            acao: 'atualizar',
+
+            acao:
+              'atualizar',
+
             id_candidatura:
               idCandidatura,
+
             status_atual:
               novoStatus
+
           })
         }
       );
 
+
     const resultado =
       await resposta.json();
+
 
     if (!resultado.sucesso) {
 
@@ -417,12 +908,15 @@ async function alterarStatus(evento) {
 
     }
 
+
     candidatura.status_atual =
       novoStatus;
+
 
     await carregarDashboard();
 
     renderizarCandidaturas();
+
 
   } catch (erro) {
 
@@ -431,85 +925,127 @@ async function alterarStatus(evento) {
       erro
     );
 
+
     alert(
       'Não foi possível atualizar o status.'
     );
 
+
     select.value =
       statusAnterior;
 
+
   } finally {
 
-    select.disabled = false;
+    select.disabled =
+      false;
 
   }
+
 }
+
 
 /* =========================
    DATAS
 ========================= */
 
-function obterDataCandidatura(data) {
+function obterDataCandidatura(
+  data
+) {
 
   if (!data) {
     return new Date(0);
   }
 
+
   const dataNormalizada =
-    String(data).substring(0, 10);
+    String(data)
+      .substring(0, 10);
+
 
   const partes =
     dataNormalizada.split('-');
 
-  if (partes.length !== 3) {
+
+  if (
+    partes.length !== 3
+  ) {
+
     return new Date(0);
+
   }
+
 
   return new Date(
+
     Number(partes[0]),
+
     Number(partes[1]) - 1,
+
     Number(partes[2])
+
   );
+
 }
 
-function formatarData(data) {
+
+function formatarData(
+  data
+) {
 
   if (!data) {
     return '-';
   }
 
+
   const dataNormalizada =
-    String(data).substring(0, 10);
+    String(data)
+      .substring(0, 10);
+
 
   const partes =
     dataNormalizada.split('-');
 
-  if (partes.length !== 3) {
+
+  if (
+    partes.length !== 3
+  ) {
+
     return '-';
+
   }
+
 
   return `
     ${partes[2]}/${partes[1]}/${partes[0]}
   `;
+
 }
+
 
 /* =========================
    FILTROS
 ========================= */
 
 document
-  .getElementById('filtroStatus')
+  .getElementById(
+    'filtroStatus'
+  )
   .addEventListener(
     'change',
     renderizarCandidaturas
   );
 
+
 document
-  .getElementById('ordenacao')
+  .getElementById(
+    'ordenacao'
+  )
   .addEventListener(
     'change',
     renderizarCandidaturas
   );
+
 
 /* =========================
    MODAL
@@ -520,20 +1056,24 @@ const modal =
     'modalCandidatura'
   );
 
+
 const abrirModalBtn =
   document.getElementById(
     'novaCandidaturaBtn'
   );
+
 
 const fecharModalBtn =
   document.getElementById(
     'fecharModal'
   );
 
+
 const cancelarModalBtn =
   document.getElementById(
     'cancelarModal'
   );
+
 
 function abrirModal() {
 
@@ -541,50 +1081,67 @@ function abrirModal() {
     'hidden'
   );
 
+
   document.getElementById(
     'data_candidatura'
   ).value =
+
     new Date()
       .toISOString()
       .split('T')[0];
 
+
   document
-    .getElementById('empresa')
+    .getElementById(
+      'empresa'
+    )
     .focus();
+
 }
+
 
 function fecharModal() {
 
   modal.classList.add(
     'hidden'
   );
+
 }
+
 
 abrirModalBtn.addEventListener(
   'click',
   abrirModal
 );
 
+
 fecharModalBtn.addEventListener(
   'click',
   fecharModal
 );
+
 
 cancelarModalBtn.addEventListener(
   'click',
   fecharModal
 );
 
+
 modal.addEventListener(
   'click',
   function (evento) {
 
-    if (evento.target === modal) {
+    if (
+      evento.target === modal
+    ) {
+
       fecharModal();
+
     }
 
   }
 );
+
 
 /* =========================
    NOVA CANDIDATURA
@@ -595,21 +1152,27 @@ const formCandidatura =
     'formCandidatura'
   );
 
+
 formCandidatura.addEventListener(
   'submit',
   async function (evento) {
 
     evento.preventDefault();
 
+
     const botaoSalvar =
       formCandidatura.querySelector(
         'button[type="submit"]'
       );
 
-    botaoSalvar.disabled = true;
+
+    botaoSalvar.disabled =
+      true;
+
 
     botaoSalvar.textContent =
       'Salvando...';
+
 
     const dados = {
 
@@ -665,6 +1228,7 @@ formCandidatura.addEventListener(
 
     };
 
+
     try {
 
       const resposta =
@@ -672,12 +1236,19 @@ formCandidatura.addEventListener(
           API_URL,
           {
             method: 'POST',
-            body: JSON.stringify(dados)
+
+            body:
+              JSON.stringify(
+                dados
+              )
+
           }
         );
 
+
       const resultado =
         await resposta.json();
+
 
       if (!resultado.sucesso) {
 
@@ -687,17 +1258,23 @@ formCandidatura.addEventListener(
 
       }
 
+
       alert(
         `Candidatura criada com sucesso!\nID: ${resultado.id_candidatura}`
       );
 
+
       formCandidatura.reset();
+
 
       fecharModal();
 
+
       await carregarDashboard();
 
+
       await carregarCandidaturas();
+
 
     } catch (erro) {
 
@@ -706,13 +1283,17 @@ formCandidatura.addEventListener(
         erro
       );
 
+
       alert(
         'Não foi possível salvar a candidatura.'
       );
 
+
     } finally {
 
-      botaoSalvar.disabled = false;
+      botaoSalvar.disabled =
+        false;
+
 
       botaoSalvar.textContent =
         'Salvar candidatura';
@@ -722,9 +1303,11 @@ formCandidatura.addEventListener(
   }
 );
 
+
 /* =========================
    INICIALIZAÇÃO
 ========================= */
 
 carregarDashboard();
+
 carregarCandidaturas();
