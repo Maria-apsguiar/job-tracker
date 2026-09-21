@@ -22,7 +22,9 @@ button {
 }
 
 
-/* TOPO */
+/* =====================================================
+   TOPO
+===================================================== */
 
 .topo {
   background: #ffffff;
@@ -45,7 +47,9 @@ button {
 }
 
 
-/* CONTAINER */
+/* =====================================================
+   CONTAINER
+===================================================== */
 
 .container {
   width: 90%;
@@ -54,7 +58,9 @@ button {
 }
 
 
-/* BOTÕES */
+/* =====================================================
+   BOTÕES
+===================================================== */
 
 .btn-principal {
   border: none;
@@ -63,11 +69,23 @@ button {
   padding: 11px 18px;
   border-radius: 8px;
   font-weight: 600;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 }
 
 .btn-principal:hover {
   opacity: 0.9;
 }
+
+.btn-principal:active {
+  transform: translateY(1px);
+}
+
+.btn-principal:disabled {
+  cursor: not-allowed;
+}
+
 
 .btn-secundario {
   border: 1px solid #d1d5db;
@@ -77,15 +95,19 @@ button {
   border-radius: 8px;
 }
 
+
 .btn-fechar {
   border: none;
   background: transparent;
   font-size: 28px;
   color: #6b7280;
+  line-height: 1;
 }
 
 
-/* INDICADORES */
+/* =====================================================
+   INDICADORES
+===================================================== */
 
 .indicadores {
   display: grid;
@@ -113,7 +135,9 @@ button {
 }
 
 
-/* PAINÉIS */
+/* =====================================================
+   PAINÉIS
+===================================================== */
 
 .dashboard-panel {
   background: white;
@@ -142,7 +166,9 @@ button {
 }
 
 
-/* RITMO */
+/* =====================================================
+   RITMO
+===================================================== */
 
 .ritmo-grid {
   display: grid;
@@ -169,7 +195,9 @@ button {
 }
 
 
-/* FILTRO DE MÊS */
+/* =====================================================
+   FILTRO DE MÊS
+===================================================== */
 
 .evolucao-header select {
   min-width: 170px;
@@ -181,7 +209,9 @@ button {
 }
 
 
-/* GRÁFICOS */
+/* =====================================================
+   GRÁFICOS
+===================================================== */
 
 .grafico-container {
   position: relative;
@@ -204,7 +234,9 @@ button {
 }
 
 
-/* PLATAFORMAS */
+/* =====================================================
+   PLATAFORMAS
+===================================================== */
 
 .resumo-plataforma {
   display: flex;
@@ -232,10 +264,12 @@ button {
 }
 
 
-/* CANDIDATURAS */
+/* =====================================================
+   CANDIDATURAS
+===================================================== */
 
 .candidaturas-section {
-  margin-top: 30px;
+  margin-top: 34px;
 }
 
 .section-header {
@@ -269,63 +303,216 @@ button {
 }
 
 
-/* LISTA */
+/* =====================================================
+   ABAS
+===================================================== */
+
+.abas-candidaturas {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 18px;
+}
+
+.aba-candidaturas {
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  padding: 11px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.aba-candidaturas:hover {
+  color: #111827;
+}
+
+.aba-candidaturas.ativa {
+  color: #111827;
+  border-bottom-color: #111827;
+}
+
+.aba-candidaturas span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 11px;
+}
+
+.aba-candidaturas.ativa span {
+  background: #111827;
+  color: white;
+}
+
+
+/* =====================================================
+   LISTA
+===================================================== */
 
 .lista-candidaturas {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
+
+
+/* =====================================================
+   CARD DE CANDIDATURA
+===================================================== */
 
 .candidatura-card {
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 11px;
+  padding: 16px 18px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.candidatura-card:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
 }
 
 .candidatura-topo {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 20px;
+  gap: 18px;
+}
+
+.candidatura-info {
+  min-width: 0;
 }
 
 .candidatura-info h3 {
-  font-size: 17px;
-  margin-bottom: 5px;
+  font-size: 16px;
+  margin-bottom: 4px;
 }
 
 .candidatura-info p {
   color: #6b7280;
-  font-size: 14px;
+  font-size: 13px;
 }
 
-.candidatura-detalhes {
+
+.candidatura-meta {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
-  margin-top: 15px;
+  margin-top: 13px;
+  flex-wrap: wrap;
 }
 
 .detalhe {
-  background: #f3f4f6;
-  color: #4b5563;
-  padding: 6px 9px;
+  background: #f8f9fa;
+  color: #5b6470;
+  padding: 5px 8px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 11px;
 }
 
+
 .status-select {
-  padding: 7px 10px;
+  flex-shrink: 0;
+  padding: 7px 9px;
   border: 1px solid #d1d5db;
   border-radius: 7px;
   background: white;
+  color: #374151;
   font-size: 12px;
+  cursor: pointer;
 }
 
 
-/* MODAL */
+.candidatura-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-top: 13px;
+  padding-top: 11px;
+  border-top: 1px solid #f0f1f2;
+}
+
+.candidatura-atualizacao {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.btn-detalhes {
+  border: none;
+  background: transparent;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+.btn-detalhes:hover {
+  text-decoration: underline;
+}
+
+
+/* =====================================================
+   CARD ENCERRADO
+===================================================== */
+
+.candidatura-card.encerrada {
+  opacity: 0.82;
+}
+
+.candidatura-card.encerrada:hover {
+  opacity: 1;
+}
+
+.status-encerrado {
+  font-size: 11px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   ESTADO VAZIO
+===================================================== */
+
+.lista-vazia {
+  background: white;
+  border: 1px dashed #d1d5db;
+  border-radius: 11px;
+  padding: 35px 20px;
+  text-align: center;
+}
+
+.lista-vazia strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.lista-vazia span {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   MODAIS
+===================================================== */
 
 .modal {
   display: none;
@@ -351,6 +538,15 @@ button {
   padding: 26px;
 }
 
+.modal-detalhes {
+  max-width: 760px;
+}
+
+
+/* =====================================================
+   CABEÇALHO DO MODAL
+===================================================== */
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -368,8 +564,77 @@ button {
   font-size: 13px;
 }
 
+.detalhes-label {
+  display: block;
+  margin-bottom: 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px !important;
+  font-weight: 700;
+  color: #9ca3af !important;
+}
 
-/* FORMULÁRIO */
+.detalhes-vaga {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   DETALHES
+===================================================== */
+
+.detalhes-conteudo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.detalhe-bloco {
+  background: #f9fafb;
+  border: 1px solid #eef0f2;
+  border-radius: 9px;
+  padding: 13px;
+}
+
+.detalhe-bloco.full {
+  grid-column: 1 / -1;
+}
+
+.detalhe-bloco-label {
+  display: block;
+  color: #9ca3af;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.detalhe-bloco-valor {
+  color: #374151;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.detalhes-acoes {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn-link-vaga {
+  text-decoration: none;
+}
+
+.btn-link-vaga.oculto {
+  display: none;
+}
+
+
+/* =====================================================
+   FORMULÁRIO
+===================================================== */
 
 .form-grid {
   display: grid;
@@ -416,7 +681,9 @@ button {
 }
 
 
-/* AÇÕES DO FORM */
+/* =====================================================
+   AÇÕES DO FORM
+===================================================== */
 
 .form-actions {
   display: flex;
@@ -426,7 +693,9 @@ button {
 }
 
 
-/* RESPONSIVO */
+/* =====================================================
+   RESPONSIVO
+===================================================== */
 
 @media (max-width: 900px) {
 
@@ -443,6 +712,14 @@ button {
   }
 
   .form-group:last-child {
+    grid-column: auto;
+  }
+
+  .detalhes-conteudo {
+    grid-template-columns: 1fr;
+  }
+
+  .detalhe-bloco.full {
     grid-column: auto;
   }
 
@@ -493,6 +770,19 @@ button {
 
   .grafico-container {
     height: 300px;
+  }
+
+  .candidatura-topo {
+    flex-direction: column;
+  }
+
+  .status-select {
+    width: 100%;
+  }
+
+  .candidatura-footer {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .modal {
