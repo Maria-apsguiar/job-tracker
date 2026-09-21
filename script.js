@@ -2,14 +2,20 @@ const API_URL =
   'https://script.google.com/macros/s/AKfycbxVubVo3fCVQjYBnG5k40vuppIvDzyPS_xDVVvxWAfB3IKuJc_vIcf0ZiDJUvU7FY4t/exec';
 
 
+/* =========================================================
+   ESTADO
+========================================================= */
+
 let candidaturas = [];
+
+let visaoAtual = 'ativas';
+
+let salvandoCandidatura = false;
 
 let graficoEvolucao = null;
 let graficoStatus = null;
 let graficoModalidade = null;
 let graficoContratacao = null;
-
-let salvandoCandidatura = false;
 
 
 /* =========================================================
@@ -26,35 +32,41 @@ async function carregarDashboard() {
     const mesSelecionado =
       filtroMes.value || obterMesAtual();
 
+
     const resposta =
       await fetch(
         `${API_URL}?dashboard=true&mes=${mesSelecionado}`
       );
 
+
     if (!resposta.ok) {
-      throw new Error('Erro ao carregar dashboard');
+      throw new Error(
+        'Erro ao carregar dashboard'
+      );
     }
+
 
     const dados =
       await resposta.json();
 
-
-    /* INDICADORES */
 
     document.getElementById(
       'totalCandidaturas'
     ).textContent =
       dados.total_candidaturas || 0;
 
+
     document.getElementById(
       'emAndamento'
     ).textContent =
       dados.em_andamento || 0;
 
+
     document.getElementById(
       'comRetorno'
     ).textContent =
       dados.com_retorno || 0;
+
 
     document.getElementById(
       'aprovadas'
@@ -62,17 +74,17 @@ async function carregarDashboard() {
       dados.aprovadas || 0;
 
 
-    /* RITMO */
-
     document.getElementById(
       'ritmoHoje'
     ).textContent =
       dados.ritmo?.hoje || 0;
 
+
     document.getElementById(
       'ritmoSemana'
     ).textContent =
       dados.ritmo?.semana || 0;
+
 
     document.getElementById(
       'ritmoMes'
@@ -80,27 +92,30 @@ async function carregarDashboard() {
       dados.ritmo?.mes || 0;
 
 
-    /* GRÁFICOS */
-
     renderizarGraficoEvolucao(
       dados.evolucao_diaria || []
     );
+
 
     renderizarGraficoStatus(
       dados.por_status || {}
     );
 
+
     renderizarGraficoModalidade(
       dados.por_modalidade || {}
     );
+
 
     renderizarGraficoContratacao(
       dados.por_tipo_contratacao || {}
     );
 
+
     renderizarResumoPlataforma(
       dados.por_plataforma || {}
     );
+
 
   } catch (erro) {
 
@@ -123,6 +138,7 @@ function obterMesAtual() {
   const hoje =
     new Date();
 
+
   return `${hoje.getFullYear()}-${String(
     hoje.getMonth() + 1
   ).padStart(2, '0')}`;
@@ -133,12 +149,17 @@ function obterMesAtual() {
 function preencherFiltroMes() {
 
   const select =
-    document.getElementById('filtroMes');
+    document.getElementById(
+      'filtroMes'
+    );
+
 
   select.innerHTML = '';
 
+
   const hoje =
     new Date();
+
 
   for (
     let i = 0;
@@ -153,33 +174,43 @@ function preencherFiltroMes() {
         1
       );
 
+
     const ano =
       data.getFullYear();
+
 
     const mes =
       String(
         data.getMonth() + 1
       ).padStart(2, '0');
 
+
     const valor =
       `${ano}-${mes}`;
 
+
     const opcao =
-      document.createElement('option');
+      document.createElement(
+        'option'
+      );
+
 
     opcao.value =
       valor;
 
+
     opcao.textContent =
-      formatarMes(
-        valor
-      );
+      formatarMes(valor);
+
 
     if (i === 0) {
       opcao.selected = true;
     }
 
-    select.appendChild(opcao);
+
+    select.appendChild(
+      opcao
+    );
 
   }
 
@@ -191,33 +222,32 @@ function formatarMes(valor) {
   const partes =
     valor.split('-');
 
+
   if (partes.length !== 2) {
     return valor;
   }
 
-  const ano =
-    Number(partes[0]);
-
-  const mes =
-    Number(partes[1]) - 1;
 
   const data =
     new Date(
-      ano,
-      mes,
+      Number(partes[0]),
+      Number(partes[1]) - 1,
       1
     );
 
-  return data.toLocaleDateString(
-    'pt-BR',
-    {
-      month: 'long',
-      year: 'numeric'
-    }
-  ).replace(
-    /^./,
-    letra => letra.toUpperCase()
-  );
+
+  return data
+    .toLocaleDateString(
+      'pt-BR',
+      {
+        month: 'long',
+        year: 'numeric'
+      }
+    )
+    .replace(
+      /^./,
+      letra => letra.toUpperCase()
+    );
 
 }
 
@@ -235,46 +265,54 @@ function renderizarGraficoEvolucao(
       'graficoEvolucao'
     );
 
+
   if (!canvas) {
     return;
   }
 
+
   if (graficoEvolucao) {
     graficoEvolucao.destroy();
   }
-
-  const labels =
-    evolucao.map(
-      item => item.data
-    );
-
-  const valores =
-    evolucao.map(
-      item => item.quantidade
-    );
 
 
   graficoEvolucao =
     new Chart(
       canvas,
       {
+
         type: 'bar',
 
         data: {
-          labels: labels,
+
+          labels:
+            evolucao.map(
+              item => item.data
+            ),
 
           datasets: [
-            {
-              label: 'Candidaturas',
 
-              data: valores,
+            {
+
+              label:
+                'Candidaturas',
+
+              data:
+                evolucao.map(
+                  item =>
+                    item.quantidade
+                ),
 
               borderWidth: 1,
 
               borderRadius: 5
+
             }
+
           ]
+
         },
+
 
         options: {
 
@@ -282,15 +320,20 @@ function renderizarGraficoEvolucao(
 
           maintainAspectRatio: false,
 
+
           plugins: {
+
             legend: {
               display: false
             }
+
           },
+
 
           scales: {
 
             y: {
+
               beginAtZero: true,
 
               ticks: {
@@ -298,16 +341,26 @@ function renderizarGraficoEvolucao(
               },
 
               title: {
+
                 display: true,
-                text: 'Quantidade'
+
+                text:
+                  'Quantidade'
+
               }
+
             },
+
 
             x: {
 
               title: {
+
                 display: true,
-                text: 'Dia'
+
+                text:
+                  'Dia'
+
               }
 
             }
@@ -335,38 +388,44 @@ function renderizarGraficoStatus(
       'graficoStatus'
     );
 
+
   if (!canvas) {
     return;
   }
 
+
   if (graficoStatus) {
     graficoStatus.destroy();
   }
-
-  const labels =
-    Object.keys(dados);
-
-  const valores =
-    Object.values(dados);
 
 
   graficoStatus =
     new Chart(
       canvas,
       {
+
         type: 'doughnut',
 
         data: {
-          labels: labels,
+
+          labels:
+            Object.keys(dados),
 
           datasets: [
+
             {
-              data: valores,
+
+              data:
+                Object.values(dados),
 
               borderWidth: 1
+
             }
+
           ]
+
         },
+
 
         options: {
 
@@ -403,38 +462,44 @@ function renderizarGraficoModalidade(
       'graficoModalidade'
     );
 
+
   if (!canvas) {
     return;
   }
 
+
   if (graficoModalidade) {
     graficoModalidade.destroy();
   }
-
-  const labels =
-    Object.keys(dados);
-
-  const valores =
-    Object.values(dados);
 
 
   graficoModalidade =
     new Chart(
       canvas,
       {
+
         type: 'doughnut',
 
         data: {
-          labels: labels,
+
+          labels:
+            Object.keys(dados),
 
           datasets: [
+
             {
-              data: valores,
+
+              data:
+                Object.values(dados),
 
               borderWidth: 1
+
             }
+
           ]
+
         },
+
 
         options: {
 
@@ -471,44 +536,49 @@ function renderizarGraficoContratacao(
       'graficoContratacao'
     );
 
+
   if (!canvas) {
     return;
   }
 
+
   if (graficoContratacao) {
     graficoContratacao.destroy();
   }
-
-  const labels =
-    Object.keys(dados);
-
-  const valores =
-    Object.values(dados);
 
 
   graficoContratacao =
     new Chart(
       canvas,
       {
+
         type: 'bar',
 
         data: {
 
-          labels: labels,
+          labels:
+            Object.keys(dados),
 
           datasets: [
-            {
-              label: 'Candidaturas',
 
-              data: valores,
+            {
+
+              label:
+                'Candidaturas',
+
+              data:
+                Object.values(dados),
 
               borderWidth: 1,
 
               borderRadius: 5
+
             }
+
           ]
 
         },
+
 
         options: {
 
@@ -519,19 +589,24 @@ function renderizarGraficoContratacao(
           maintainAspectRatio: false,
 
           plugins: {
+
             legend: {
               display: false
             }
+
           },
+
 
           scales: {
 
             x: {
+
               beginAtZero: true,
 
               ticks: {
                 precision: 0
               }
+
             }
 
           }
@@ -545,7 +620,7 @@ function renderizarGraficoContratacao(
 
 
 /* =========================================================
-   RESUMO DE PLATAFORMAS
+   PLATAFORMAS
 ========================================================= */
 
 function renderizarResumoPlataforma(
@@ -557,14 +632,18 @@ function renderizarResumoPlataforma(
       'resumoPlataforma'
     );
 
+
   if (!container) {
     return;
   }
 
+
   container.innerHTML = '';
+
 
   const entradas =
     Object.entries(dados);
+
 
   if (entradas.length === 0) {
 
@@ -572,28 +651,44 @@ function renderizarResumoPlataforma(
       '<p>Nenhuma candidatura registrada.</p>';
 
     return;
+
   }
 
 
   entradas
     .sort(
-      (a, b) => b[1] - a[1]
+      (a, b) =>
+        b[1] - a[1]
     )
     .forEach(
       ([plataforma, quantidade]) => {
 
         const item =
-          document.createElement('div');
+          document.createElement(
+            'div'
+          );
+
 
         item.className =
           'plataforma-item';
 
+
         item.innerHTML = `
-          <span>${formatarRotulo(plataforma)}</span>
-          <strong>${quantidade}</strong>
+
+          <span>
+            ${formatarRotulo(plataforma)}
+          </span>
+
+          <strong>
+            ${quantidade}
+          </strong>
+
         `;
 
-        container.appendChild(item);
+
+        container.appendChild(
+          item
+        );
 
       }
     );
@@ -602,7 +697,7 @@ function renderizarResumoPlataforma(
 
 
 /* =========================================================
-   CANDIDATURAS
+   CARREGAR CANDIDATURAS
 ========================================================= */
 
 async function carregarCandidaturas() {
@@ -610,7 +705,10 @@ async function carregarCandidaturas() {
   try {
 
     const resposta =
-      await fetch(API_URL);
+      await fetch(
+        `${API_URL}?visao=${visaoAtual}`
+      );
+
 
     if (!resposta.ok) {
       throw new Error(
@@ -618,12 +716,19 @@ async function carregarCandidaturas() {
       );
     }
 
+
     candidaturas =
       await resposta.json();
 
+
+    atualizarContadores();
+
+
     gerarOpcoesStatus();
 
+
     renderizarCandidaturas();
+
 
   } catch (erro) {
 
@@ -637,6 +742,72 @@ async function carregarCandidaturas() {
 }
 
 
+/* =========================================================
+   CONTADORES
+========================================================= */
+
+async function atualizarContadores() {
+
+  try {
+
+    const [respostaAtivas, respostaEncerradas] =
+      await Promise.all([
+
+        fetch(
+          `${API_URL}?visao=ativas`
+        ),
+
+        fetch(
+          `${API_URL}?visao=encerradas`
+        )
+
+      ]);
+
+
+    if (
+      !respostaAtivas.ok ||
+      !respostaEncerradas.ok
+    ) {
+      return;
+    }
+
+
+    const ativas =
+      await respostaAtivas.json();
+
+
+    const encerradas =
+      await respostaEncerradas.json();
+
+
+    document.getElementById(
+      'contadorAtivas'
+    ).textContent =
+      ativas.length;
+
+
+    document.getElementById(
+      'contadorEncerradas'
+    ).textContent =
+      encerradas.length;
+
+
+  } catch (erro) {
+
+    console.error(
+      'Erro ao atualizar contadores:',
+      erro
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   RENDERIZAÇÃO DAS CANDIDATURAS
+========================================================= */
+
 function renderizarCandidaturas() {
 
   const container =
@@ -644,14 +815,17 @@ function renderizarCandidaturas() {
       'listaCandidaturas'
     );
 
+
   if (!container) {
     return;
   }
+
 
   const filtro =
     document.getElementById(
       'filtroStatus'
     ).value;
+
 
   const ordenacao =
     document.getElementById(
@@ -697,6 +871,7 @@ function renderizarCandidaturas() {
           a.data_candidatura
         );
 
+
       const dataB =
         new Date(
           b.data_candidatura
@@ -711,6 +886,7 @@ function renderizarCandidaturas() {
 
       }
 
+
       return dataB - dataA;
 
     }
@@ -722,8 +898,29 @@ function renderizarCandidaturas() {
 
   if (lista.length === 0) {
 
-    container.innerHTML =
-      '<div class="candidatura-card">Nenhuma candidatura encontrada.</div>';
+    container.innerHTML = `
+
+      <div class="lista-vazia">
+
+        <strong>
+          ${
+            visaoAtual === 'ativas'
+              ? 'Nenhuma candidatura ativa'
+              : 'Nenhuma candidatura encerrada'
+          }
+        </strong>
+
+        <span>
+          ${
+            visaoAtual === 'ativas'
+              ? 'As candidaturas em andamento aparecerão aqui.'
+              : 'Candidaturas negadas ou desistidas aparecerão aqui.'
+          }
+        </span>
+
+      </div>
+
+    `;
 
     return;
 
@@ -738,14 +935,31 @@ function renderizarCandidaturas() {
           'div'
         );
 
+
+      const encerrada =
+        visaoAtual === 'encerradas';
+
+
       card.className =
-        'candidatura-card';
+        `candidatura-card ${
+          encerrada
+            ? 'encerrada'
+            : ''
+        }`;
 
 
       const dataFormatada =
         formatarData(
           candidatura.data_candidatura
         );
+
+
+      const ultimaAtualizacao =
+        candidatura.ultima_atualizacao
+          ? formatarData(
+              candidatura.ultima_atualizacao
+            )
+          : dataFormatada;
 
 
       card.innerHTML = `
@@ -755,80 +969,183 @@ function renderizarCandidaturas() {
           <div class="candidatura-info">
 
             <h3>
-              ${candidatura.empresa || 'Sem empresa'}
+              ${
+                candidatura.empresa ||
+                'Sem empresa'
+              }
             </h3>
 
             <p>
-              ${candidatura.vaga || 'Sem vaga'}
+              ${
+                candidatura.vaga ||
+                'Sem vaga'
+              }
             </p>
 
           </div>
 
 
-          <select
-            class="status-select"
-            data-id="${candidatura.id_candidatura}"
-          >
+          ${
+            encerrada
 
-            ${gerarOpcoesStatusHtml(
-              candidatura.status_atual
-            )}
+              ? `
 
-          </select>
+                <span class="status-encerrado">
+
+                  ${formatarRotulo(
+                    candidatura.status_atual
+                  )}
+
+                </span>
+
+              `
+
+              : `
+
+                <select
+                  class="status-select"
+                  data-id="${candidatura.id_candidatura}"
+                >
+
+                  ${gerarOpcoesStatusHtml(
+                    candidatura.status_atual
+                  )}
+
+                </select>
+
+              `
+          }
 
         </div>
 
 
-        <div class="candidatura-detalhes">
 
-          <span class="detalhe">
-            ${dataFormatada}
-          </span>
+        <div class="candidatura-meta">
 
           ${
             candidatura.modalidade
-              ? `<span class="detalhe">
-                  ${formatarRotulo(candidatura.modalidade)}
-                </span>`
+
+              ? `
+
+                <span class="detalhe">
+
+                  ${formatarRotulo(
+                    candidatura.modalidade
+                  )}
+
+                </span>
+
+              `
+
               : ''
           }
+
 
           ${
             candidatura.tipo_contratacao
-              ? `<span class="detalhe">
-                  ${formatarRotulo(candidatura.tipo_contratacao)}
-                </span>`
+
+              ? `
+
+                <span class="detalhe">
+
+                  ${formatarRotulo(
+                    candidatura.tipo_contratacao
+                  )}
+
+                </span>
+
+              `
+
               : ''
           }
+
 
           ${
             candidatura.plataforma
-              ? `<span class="detalhe">
-                  ${formatarRotulo(candidatura.plataforma)}
-                </span>`
+
+              ? `
+
+                <span class="detalhe">
+
+                  ${formatarRotulo(
+                    candidatura.plataforma
+                  )}
+
+                </span>
+
+              `
+
               : ''
           }
 
+
           ${
-            candidatura.localizacao
-              ? `<span class="detalhe">
-                  ${candidatura.localizacao}
-                </span>`
+            candidatura.dias_em_processo !==
+            undefined
+
+              ? `
+
+                <span class="detalhe">
+
+                  ${
+                    candidatura.dias_em_processo
+                  }
+                  ${
+                    candidatura.dias_em_processo === 1
+                      ? 'dia'
+                      : 'dias'
+                  }
+                  em processo
+
+                </span>
+
+              `
+
               : ''
           }
+
+        </div>
+
+
+
+        <div class="candidatura-footer">
+
+          <span class="candidatura-atualizacao">
+
+            ${
+              encerrada
+                ? `Encerrada em ${ultimaAtualizacao}`
+                : `Última atualização: ${ultimaAtualizacao}`
+            }
+
+          </span>
+
+
+          <button
+            class="btn-detalhes"
+            data-id="${candidatura.id_candidatura}"
+          >
+
+            Ver detalhes →
+
+          </button>
 
         </div>
 
       `;
 
 
-      container.appendChild(card);
+      container.appendChild(
+        card
+      );
 
     }
   );
 
 
   adicionarEventosStatus();
+
+  adicionarEventosDetalhes();
 
 }
 
@@ -838,16 +1155,27 @@ function renderizarCandidaturas() {
 ========================================================= */
 
 const STATUS = [
+
   'candidatura enviada',
+
   'em análise',
+
   'entrevista rh',
+
   'entrevista técnica',
+
   'teste técnico',
+
   'entrevista gestor',
+
   'proposta',
+
   'aprovado',
+
   'negado',
+
   'desisti'
+
 ];
 
 
@@ -858,26 +1186,31 @@ function gerarOpcoesStatus() {
       'filtroStatus'
     );
 
+
   if (!select) {
     return;
   }
 
+
   const valorAtual =
     select.value;
+
 
   select.innerHTML =
     '<option value="todos">Todos os status</option>';
 
 
   const statusExistentes =
-    [...new Set(
-      candidaturas
-        .map(
-          item =>
-            item.status_atual
-        )
-        .filter(Boolean)
-    )];
+    [
+      ...new Set(
+        candidaturas
+          .map(
+            item =>
+              item.status_atual
+          )
+          .filter(Boolean)
+      )
+    ];
 
 
   const lista =
@@ -887,7 +1220,9 @@ function gerarOpcoesStatus() {
     ];
 
 
-  [...new Set(lista)]
+  [
+    ...new Set(lista)
+  ]
     .forEach(
       status => {
 
@@ -896,11 +1231,16 @@ function gerarOpcoesStatus() {
             'option'
           );
 
+
         option.value =
           status;
 
+
         option.textContent =
-          formatarRotulo(status);
+          formatarRotulo(
+            status
+          );
+
 
         select.appendChild(
           option
@@ -935,9 +1275,17 @@ function gerarOpcoesStatusHtml(
 
         <option
           value="${status}"
-          ${status === statusAtual ? 'selected' : ''}
+          ${
+            status === statusAtual
+              ? 'selected'
+              : ''
+          }
         >
-          ${formatarRotulo(status)}
+
+          ${formatarRotulo(
+            status
+          )}
+
         </option>
 
       `
@@ -946,6 +1294,10 @@ function gerarOpcoesStatusHtml(
 
 }
 
+
+/* =========================================================
+   ALTERAR STATUS
+========================================================= */
 
 function adicionarEventosStatus() {
 
@@ -972,11 +1324,16 @@ async function alterarStatus(evento) {
   const select =
     evento.target;
 
+
   const id =
     select.dataset.id;
 
+
   const novoStatus =
     select.value;
+
+
+  select.disabled = true;
 
 
   try {
@@ -985,36 +1342,52 @@ async function alterarStatus(evento) {
       await fetch(
         API_URL,
         {
+
           method: 'POST',
 
           headers: {
+
             'Content-Type':
               'text/plain;charset=utf-8'
+
           },
 
           body:
             JSON.stringify({
-              acao: 'atualizar',
 
-              id_candidatura: id,
+              acao:
+                'atualizar',
+
+              id_candidatura:
+                id,
 
               status_atual:
                 novoStatus
+
             })
+
         }
       );
 
 
     if (!resposta.ok) {
+
       throw new Error(
         'Erro ao atualizar status'
       );
+
     }
 
 
-    await carregarCandidaturas();
+    await Promise.all([
 
-    await carregarDashboard();
+      carregarCandidaturas(),
+
+      carregarDashboard(),
+
+      atualizarContadores()
+
+    ]);
 
 
   } catch (erro) {
@@ -1024,8 +1397,296 @@ async function alterarStatus(evento) {
       erro
     );
 
+
     alert(
       'Não foi possível atualizar o status.'
+    );
+
+
+    select.disabled = false;
+
+  }
+
+}
+
+
+/* =========================================================
+   DETALHES
+========================================================= */
+
+function adicionarEventosDetalhes() {
+
+  document
+    .querySelectorAll(
+      '.btn-detalhes'
+    )
+    .forEach(
+      botao => {
+
+        botao.addEventListener(
+          'click',
+          () =>
+            abrirDetalhes(
+              botao.dataset.id
+            )
+        );
+
+      }
+    );
+
+}
+
+
+async function abrirDetalhes(
+  id
+) {
+
+  try {
+
+    const resposta =
+      await fetch(
+        `${API_URL}?id=${encodeURIComponent(id)}`
+      );
+
+
+    if (!resposta.ok) {
+
+      throw new Error(
+        'Erro ao buscar candidatura'
+      );
+
+    }
+
+
+    const candidatura =
+      await resposta.json();
+
+
+    if (!candidatura) {
+
+      throw new Error(
+        'Candidatura não encontrada'
+      );
+
+    }
+
+
+    document.getElementById(
+      'detalhesEmpresa'
+    ).textContent =
+      candidatura.empresa ||
+      'Sem empresa';
+
+
+    document.getElementById(
+      'detalhesVaga'
+    ).textContent =
+      candidatura.vaga ||
+      'Sem vaga';
+
+
+    const campos = [
+
+      [
+        'Data da candidatura',
+        formatarData(
+          candidatura.data_candidatura
+        )
+      ],
+
+      [
+        'Status',
+        formatarRotulo(
+          candidatura.status_atual
+        )
+      ],
+
+      [
+        'Resultado',
+        formatarRotulo(
+          candidatura.resultado
+        )
+      ],
+
+      [
+        'Teve retorno',
+        formatarRotulo(
+          candidatura.teve_retorno
+        )
+      ],
+
+      [
+        'Salário mínimo',
+        candidatura.salario_min || '-'
+      ],
+
+      [
+        'Salário máximo',
+        candidatura.salario_max || '-'
+      ],
+
+      [
+        'Salário informado',
+        candidatura.salario_informado || '-'
+      ],
+
+      [
+        'Tipo de contratação',
+        formatarRotulo(
+          candidatura.tipo_contratacao
+        ) || '-'
+      ],
+
+      [
+        'Modalidade',
+        formatarRotulo(
+          candidatura.modalidade
+        ) || '-'
+      ],
+
+      [
+        'Localização',
+        candidatura.localizacao || '-'
+      ],
+
+      [
+        'Plataforma',
+        formatarRotulo(
+          candidatura.plataforma
+        ) || '-'
+      ],
+
+      [
+        'Dias em processo',
+        candidatura.dias_em_processo !== undefined
+          ? candidatura.dias_em_processo
+          : '-'
+      ],
+
+      [
+        'Última atualização',
+        formatarData(
+          candidatura.ultima_atualizacao
+        )
+      ],
+
+      [
+        'Observações',
+        candidatura.observacoes || '-'
+      ]
+
+    ];
+
+
+    const conteudo =
+      document.getElementById(
+        'detalhesConteudo'
+      );
+
+
+    conteudo.innerHTML = '';
+
+
+    campos.forEach(
+      ([label, valor]) => {
+
+        const bloco =
+          document.createElement(
+            'div'
+          );
+
+
+        bloco.className =
+          'detalhe-bloco';
+
+
+        if (
+          label === 'Observações'
+        ) {
+
+          bloco.classList.add(
+            'full'
+          );
+
+        }
+
+
+        bloco.innerHTML = `
+
+          <span class="detalhe-bloco-label">
+
+            ${label}
+
+          </span>
+
+          <span class="detalhe-bloco-valor">
+
+            ${escaparHtml(
+              String(valor)
+            )}
+
+          </span>
+
+        `;
+
+
+        conteudo.appendChild(
+          bloco
+        );
+
+      }
+    );
+
+
+    const link =
+      document.getElementById(
+        'detalhesLinkVaga'
+      );
+
+
+    if (
+      candidatura.link_vaga
+    ) {
+
+      link.href =
+        candidatura.link_vaga;
+
+      link.classList.remove(
+        'oculto'
+      );
+
+    } else {
+
+      link.removeAttribute(
+        'href'
+      );
+
+      link.classList.add(
+        'oculto'
+      );
+
+    }
+
+
+    document
+      .getElementById(
+        'modalDetalhes'
+      )
+      .classList.add(
+        'ativo'
+      );
+
+
+  } catch (erro) {
+
+    console.error(
+      'Erro ao abrir detalhes:',
+      erro
+    );
+
+
+    alert(
+      'Não foi possível carregar os detalhes da candidatura.'
     );
 
   }
@@ -1043,6 +1704,7 @@ function abrirModal() {
     document.getElementById(
       'modalCandidatura'
     );
+
 
   modal.classList.add(
     'ativo'
@@ -1078,11 +1740,67 @@ function fecharModal() {
 }
 
 
+function fecharModalDetalhes() {
+
+  document
+    .getElementById(
+      'modalDetalhes'
+    )
+    .classList.remove(
+      'ativo'
+    );
+
+}
+
+
+/* =========================================================
+   CRIAR CANDIDATURA
+========================================================= */
+
 async function criarCandidatura(
   evento
 ) {
 
   evento.preventDefault();
+
+
+  if (
+    salvandoCandidatura
+  ) {
+
+    return;
+
+  }
+
+
+  salvandoCandidatura =
+    true;
+
+
+  const botaoSalvar =
+    document.querySelector(
+      '#formCandidatura button[type="submit"]'
+    );
+
+
+  const textoOriginal =
+    botaoSalvar.textContent;
+
+
+  botaoSalvar.disabled =
+    true;
+
+
+  botaoSalvar.textContent =
+    'Salvando...';
+
+
+  botaoSalvar.style.opacity =
+    '0.6';
+
+
+  botaoSalvar.style.cursor =
+    'not-allowed';
 
 
   const dados = {
@@ -1165,23 +1883,31 @@ async function criarCandidatura(
       await fetch(
         API_URL,
         {
+
           method: 'POST',
 
           headers: {
+
             'Content-Type':
               'text/plain;charset=utf-8'
+
           },
 
           body:
-            JSON.stringify(dados)
+            JSON.stringify(
+              dados
+            )
+
         }
       );
 
 
     if (!resposta.ok) {
+
       throw new Error(
         'Erro ao criar candidatura'
       );
+
     }
 
 
@@ -1197,6 +1923,7 @@ async function criarCandidatura(
 
     fecharModal();
 
+
     document
       .getElementById(
         'formCandidatura'
@@ -1204,9 +1931,15 @@ async function criarCandidatura(
       .reset();
 
 
-    await carregarCandidaturas();
+    await Promise.all([
 
-    await carregarDashboard();
+      carregarCandidaturas(),
+
+      carregarDashboard(),
+
+      atualizarContadores()
+
+    ]);
 
 
   } catch (erro) {
@@ -1216,9 +1949,32 @@ async function criarCandidatura(
       erro
     );
 
+
     alert(
       'Não foi possível criar a candidatura.'
     );
+
+
+  } finally {
+
+    salvandoCandidatura =
+      false;
+
+
+    botaoSalvar.disabled =
+      false;
+
+
+    botaoSalvar.textContent =
+      textoOriginal;
+
+
+    botaoSalvar.style.opacity =
+      '';
+
+
+    botaoSalvar.style.cursor =
+      '';
 
   }
 
@@ -1234,18 +1990,27 @@ function obterDataHoje() {
   const hoje =
     new Date();
 
+
   const ano =
     hoje.getFullYear();
+
 
   const mes =
     String(
       hoje.getMonth() + 1
-    ).padStart(2, '0');
+    ).padStart(
+      2,
+      '0'
+    );
+
 
   const dia =
     String(
       hoje.getDate()
-    ).padStart(2, '0');
+    ).padStart(
+      2,
+      '0'
+    );
 
 
   return `${ano}-${mes}-${dia}`;
@@ -1264,7 +2029,10 @@ function formatarData(
 
   const texto =
     String(valor)
-      .substring(0, 10);
+      .substring(
+        0,
+        10
+      );
 
 
   const partes =
@@ -1274,7 +2042,9 @@ function formatarData(
   if (
     partes.length !== 3
   ) {
+
     return valor;
+
   }
 
 
@@ -1297,10 +2067,101 @@ function formatarRotulo(
 
 
   return String(valor)
-    .replaceAll('_', ' ')
-    .replace(/\b\w/g, letra =>
-      letra.toUpperCase()
+    .replaceAll(
+      '_',
+      ' '
+    )
+    .replace(
+      /\b\w/g,
+      letra =>
+        letra.toUpperCase()
     );
+
+}
+
+
+/* =========================================================
+   SEGURANÇA
+========================================================= */
+
+function escaparHtml(
+  valor
+) {
+
+  return String(valor)
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+    .replace(
+      /</g,
+      '&lt;'
+    )
+    .replace(
+      />/g,
+      '&gt;'
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+
+}
+
+
+/* =========================================================
+   TROCA DE ABA
+========================================================= */
+
+async function trocarVisao(
+  novaVisao
+) {
+
+  if (
+    novaVisao === visaoAtual
+  ) {
+
+    return;
+
+  }
+
+
+  visaoAtual =
+    novaVisao;
+
+
+  document
+    .querySelectorAll(
+      '.aba-candidaturas'
+    )
+    .forEach(
+      aba => {
+
+        aba.classList.toggle(
+          'ativa',
+          aba.dataset.visao ===
+            visaoAtual
+        );
+
+      }
+    );
+
+
+  const filtro =
+    document.getElementById(
+      'filtroStatus'
+    );
+
+
+  filtro.value =
+    'todos';
+
+
+  await carregarCandidaturas();
 
 }
 
@@ -1336,6 +2197,16 @@ document
   .addEventListener(
     'click',
     fecharModal
+  );
+
+
+document
+  .getElementById(
+    'fecharDetalhes'
+  )
+  .addEventListener(
+    'click',
+    fecharModalDetalhes
   );
 
 
@@ -1379,6 +2250,78 @@ document
   );
 
 
+document
+  .getElementById(
+    'abaAtivas'
+  )
+  .addEventListener(
+    'click',
+    () =>
+      trocarVisao(
+        'ativas'
+      )
+  );
+
+
+document
+  .getElementById(
+    'abaEncerradas'
+  )
+  .addEventListener(
+    'click',
+    () =>
+      trocarVisao(
+        'encerradas'
+      )
+  );
+
+
+/* =========================================================
+   FECHAR MODAL CLICANDO FORA
+========================================================= */
+
+document
+  .getElementById(
+    'modalCandidatura'
+  )
+  .addEventListener(
+    'click',
+    evento => {
+
+      if (
+        evento.target.id ===
+        'modalCandidatura'
+      ) {
+
+        fecharModal();
+
+      }
+
+    }
+  );
+
+
+document
+  .getElementById(
+    'modalDetalhes'
+  )
+  .addEventListener(
+    'click',
+    evento => {
+
+      if (
+        evento.target.id ===
+        'modalDetalhes'
+      ) {
+
+        fecharModalDetalhes();
+
+      }
+
+    }
+  );
+
+
 /* =========================================================
    INICIALIZAÇÃO
 ========================================================= */
@@ -1388,3 +2331,5 @@ preencherFiltroMes();
 carregarDashboard();
 
 carregarCandidaturas();
+
+atualizarContadores();
