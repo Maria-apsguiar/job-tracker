@@ -1,199 +1,359 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Job Tracker</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
 </head>
+
 
 <body>
 
+
+  <!-- =====================================================
+       TOPO
+  ====================================================== -->
+
   <header class="topo">
+
     <div>
+
       <h1>Job Tracker</h1>
-      <p>Acompanhe seus processos seletivos em um só lugar</p>
+
+      <p>
+        Acompanhe seus processos seletivos em um só lugar
+      </p>
+
     </div>
 
-    <button id="btnNovaCandidatura" class="btn-principal">
+
+    <button
+      id="btnNovaCandidatura"
+      class="btn-principal"
+    >
       + Nova candidatura
     </button>
+
   </header>
+
 
 
   <main class="container">
 
-    <!-- INDICADORES -->
+
+    <!-- =====================================================
+         INDICADORES
+    ====================================================== -->
 
     <section class="indicadores">
 
       <div class="indicador-card">
+
         <span>Total de candidaturas</span>
-        <strong id="totalCandidaturas">0</strong>
+
+        <strong id="totalCandidaturas">
+          0
+        </strong>
+
       </div>
 
+
       <div class="indicador-card">
+
         <span>Em andamento</span>
-        <strong id="emAndamento">0</strong>
+
+        <strong id="emAndamento">
+          0
+        </strong>
+
       </div>
 
+
       <div class="indicador-card">
+
         <span>Com retorno</span>
-        <strong id="comRetorno">0</strong>
+
+        <strong id="comRetorno">
+          0
+        </strong>
+
       </div>
 
+
       <div class="indicador-card">
+
         <span>Aprovadas</span>
-        <strong id="aprovadas">0</strong>
+
+        <strong id="aprovadas">
+          0
+        </strong>
+
       </div>
 
     </section>
 
 
-    <!-- RITMO -->
+
+    <!-- =====================================================
+         RITMO
+    ====================================================== -->
 
     <section class="dashboard-panel">
 
       <div class="panel-header">
+
         <div>
+
           <h2>Ritmo de candidaturas</h2>
-          <span>Acompanhe o volume de candidaturas enviadas</span>
+
+          <span>
+            Acompanhe o volume de candidaturas enviadas
+          </span>
+
         </div>
+
       </div>
+
 
       <div class="ritmo-grid">
 
+
         <div class="ritmo-card">
+
           <span>Hoje</span>
-          <strong id="ritmoHoje">0</strong>
+
+          <strong id="ritmoHoje">
+            0
+          </strong>
+
         </div>
 
+
         <div class="ritmo-card">
+
           <span>Esta semana</span>
-          <strong id="ritmoSemana">0</strong>
+
+          <strong id="ritmoSemana">
+            0
+          </strong>
+
         </div>
 
+
         <div class="ritmo-card">
+
           <span>Este mês</span>
-          <strong id="ritmoMes">0</strong>
+
+          <strong id="ritmoMes">
+            0
+          </strong>
+
         </div>
+
 
       </div>
 
     </section>
 
 
-    <!-- EVOLUÇÃO -->
+
+    <!-- =====================================================
+         EVOLUÇÃO
+    ====================================================== -->
 
     <section class="dashboard-panel">
 
       <div class="panel-header evolucao-header">
 
         <div>
+
           <h2>Evolução das candidaturas</h2>
-          <span>Quantidade de candidaturas por dia</span>
+
+          <span>
+            Quantidade de candidaturas por dia
+          </span>
+
         </div>
 
-        <select id="filtroMes">
-        </select>
+
+        <select id="filtroMes"></select>
 
       </div>
 
+
       <div class="grafico-container">
+
         <canvas id="graficoEvolucao"></canvas>
+
       </div>
 
     </section>
 
 
-    <!-- DISTRIBUIÇÕES -->
+
+    <!-- =====================================================
+         DISTRIBUIÇÕES
+    ====================================================== -->
 
     <section class="dashboard-grid">
 
+
       <div class="dashboard-panel">
 
         <div class="panel-header">
+
           <div>
+
             <h2>Status das candidaturas</h2>
-            <span>Distribuição atual dos processos</span>
+
+            <span>
+              Distribuição atual dos processos
+            </span>
+
           </div>
+
         </div>
 
+
         <div class="grafico-container grafico-pequeno">
+
           <canvas id="graficoStatus"></canvas>
+
         </div>
 
       </div>
 
 
+
       <div class="dashboard-panel">
 
         <div class="panel-header">
+
           <div>
+
             <h2>Modalidade</h2>
-            <span>Distribuição por modelo de trabalho</span>
+
+            <span>
+              Distribuição por modelo de trabalho
+            </span>
+
           </div>
+
         </div>
 
+
         <div class="grafico-container grafico-pequeno">
+
           <canvas id="graficoModalidade"></canvas>
+
         </div>
 
       </div>
 
 
+
       <div class="dashboard-panel">
 
         <div class="panel-header">
+
           <div>
+
             <h2>Tipo de contratação</h2>
-            <span>Distribuição das oportunidades</span>
+
+            <span>
+              Distribuição das oportunidades
+            </span>
+
           </div>
+
         </div>
+
 
         <div class="grafico-container grafico-pequeno">
+
           <canvas id="graficoContratacao"></canvas>
+
         </div>
 
       </div>
+
 
 
       <div class="dashboard-panel">
 
         <div class="panel-header">
+
           <div>
+
             <h2>Plataformas</h2>
-            <span>Onde as candidaturas foram encontradas</span>
+
+            <span>
+              Onde as candidaturas foram encontradas
+            </span>
+
           </div>
+
         </div>
 
-        <div id="resumoPlataforma" class="resumo-plataforma"></div>
+
+        <div
+          id="resumoPlataforma"
+          class="resumo-plataforma"
+        ></div>
 
       </div>
+
 
     </section>
 
 
-    <!-- CANDIDATURAS -->
+
+    <!-- =====================================================
+         CANDIDATURAS
+    ====================================================== -->
 
     <section class="candidaturas-section">
+
 
       <div class="section-header">
 
         <div>
-          <h2>Minhas candidaturas</h2>
-          <span>Acompanhe cada processo seletivo</span>
+
+          <h2>Candidaturas</h2>
+
+          <span>
+            Gerencie seus processos seletivos
+          </span>
+
         </div>
+
 
         <div class="filtros">
 
           <select id="filtroStatus">
-            <option value="todos">Todos os status</option>
+
+            <option value="todos">
+              Todos os status
+            </option>
+
           </select>
 
+
           <select id="ordenacao">
+
             <option value="mais_recente">
               Mais recentes
             </option>
@@ -205,64 +365,143 @@
             <option value="empresa">
               Empresa
             </option>
+
           </select>
 
         </div>
 
       </div>
 
-      <div id="listaCandidaturas" class="lista-candidaturas"></div>
+
+
+      <!-- ABAS -->
+
+      <div class="abas-candidaturas">
+
+        <button
+          id="abaAtivas"
+          class="aba-candidaturas ativa"
+          data-visao="ativas"
+        >
+
+          Ativas
+
+          <span id="contadorAtivas">
+            0
+          </span>
+
+        </button>
+
+
+        <button
+          id="abaEncerradas"
+          class="aba-candidaturas"
+          data-visao="encerradas"
+        >
+
+          Encerradas
+
+          <span id="contadorEncerradas">
+            0
+          </span>
+
+        </button>
+
+      </div>
+
+
+
+      <!-- LISTA -->
+
+      <div
+        id="listaCandidaturas"
+        class="lista-candidaturas"
+      ></div>
+
 
     </section>
+
 
   </main>
 
 
-  <!-- MODAL NOVA CANDIDATURA -->
 
-  <div id="modalCandidatura" class="modal">
+  <!-- =====================================================
+       MODAL NOVA CANDIDATURA
+  ====================================================== -->
+
+  <div
+    id="modalCandidatura"
+    class="modal"
+  >
 
     <div class="modal-content">
+
 
       <div class="modal-header">
 
         <div>
+
           <h2>Nova candidatura</h2>
-          <span>Registre uma nova oportunidade</span>
+
+          <span>
+            Registre uma nova oportunidade
+          </span>
+
         </div>
 
-        <button id="fecharModal" class="btn-fechar">
+
+        <button
+          id="fecharModal"
+          class="btn-fechar"
+        >
           ×
         </button>
 
       </div>
 
 
+
       <form id="formCandidatura">
+
 
         <div class="form-grid">
 
+
           <div class="form-group">
-            <label for="empresa">Empresa</label>
+
+            <label for="empresa">
+              Empresa
+            </label>
+
             <input
               type="text"
               id="empresa"
               required
             >
+
           </div>
 
 
+
           <div class="form-group">
-            <label for="vaga">Vaga</label>
+
+            <label for="vaga">
+              Vaga
+            </label>
+
             <input
               type="text"
               id="vaga"
               required
             >
+
           </div>
 
 
+
           <div class="form-group">
+
             <label for="salarioMin">
               Salário mínimo
             </label>
@@ -273,10 +512,13 @@
               min="0"
               step="0.01"
             >
+
           </div>
 
 
+
           <div class="form-group">
+
             <label for="salarioMax">
               Salário máximo
             </label>
@@ -287,10 +529,13 @@
               min="0"
               step="0.01"
             >
+
           </div>
 
 
+
           <div class="form-group">
+
             <label for="salarioInformado">
               Salário informado
             </label>
@@ -299,28 +544,51 @@
               type="text"
               id="salarioInformado"
             >
+
           </div>
 
 
+
           <div class="form-group">
+
             <label for="tipoContratacao">
               Tipo de contratação
             </label>
 
             <select id="tipoContratacao">
+
               <option value="">
                 Selecione
               </option>
 
-              <option value="clt">CLT</option>
-              <option value="pj">PJ</option>
-              <option value="temporário">Temporário</option>
-              <option value="estágio">Estágio</option>
-              <option value="freelancer">Freelancer</option>
-              <option value="outro">Outro</option>
+              <option value="clt">
+                CLT
+              </option>
+
+              <option value="pj">
+                PJ
+              </option>
+
+              <option value="temporário">
+                Temporário
+              </option>
+
+              <option value="estágio">
+                Estágio
+              </option>
+
+              <option value="freelancer">
+                Freelancer
+              </option>
+
+              <option value="outro">
+                Outro
+              </option>
+
             </select>
 
           </div>
+
 
 
           <div class="form-group">
@@ -352,6 +620,7 @@
           </div>
 
 
+
           <div class="form-group">
 
             <label for="localizacao">
@@ -364,6 +633,7 @@
             >
 
           </div>
+
 
 
           <div class="form-group">
@@ -419,6 +689,7 @@
           </div>
 
 
+
           <div class="form-group">
 
             <label for="linkVaga">
@@ -431,6 +702,7 @@
             >
 
           </div>
+
 
 
           <div class="form-group">
@@ -448,6 +720,7 @@
           </div>
 
 
+
           <div class="form-group">
 
             <label for="observacoes">
@@ -461,7 +734,9 @@
 
           </div>
 
+
         </div>
+
 
 
         <div class="form-actions">
@@ -474,6 +749,7 @@
             Cancelar
           </button>
 
+
           <button
             type="submit"
             class="btn-principal"
@@ -483,6 +759,7 @@
 
         </div>
 
+
       </form>
 
     </div>
@@ -490,8 +767,87 @@
   </div>
 
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- =====================================================
+       MODAL DETALHES
+  ====================================================== -->
+
+  <div
+    id="modalDetalhes"
+    class="modal"
+  >
+
+    <div class="modal-content modal-detalhes">
+
+
+      <div class="modal-header">
+
+        <div>
+
+          <span class="detalhes-label">
+            Detalhes da candidatura
+          </span>
+
+          <h2 id="detalhesEmpresa">
+            Empresa
+          </h2>
+
+          <p
+            id="detalhesVaga"
+            class="detalhes-vaga"
+          >
+            Vaga
+          </p>
+
+        </div>
+
+
+        <button
+          id="fecharDetalhes"
+          class="btn-fechar"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+
+      <div
+        id="detalhesConteudo"
+        class="detalhes-conteudo"
+      ></div>
+
+
+
+      <div class="detalhes-acoes">
+
+        <a
+          id="detalhesLinkVaga"
+          class="btn-principal btn-link-vaga"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Abrir vaga
+        </a>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/chart.js"
+  ></script>
+
   <script src="script.js"></script>
 
+
 </body>
+
 </html>
