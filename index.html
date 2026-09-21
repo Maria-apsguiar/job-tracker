@@ -3,246 +3,315 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Job Tracker</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <header class="header">
+  <header class="topo">
     <div>
       <h1>Job Tracker</h1>
       <p>Acompanhe seus processos seletivos em um só lugar</p>
     </div>
 
-    <button id="novaCandidaturaBtn">
+    <button id="btnNovaCandidatura" class="btn-principal">
       + Nova candidatura
     </button>
   </header>
 
+
   <main class="container">
 
     <!-- INDICADORES -->
-    <section class="dashboard">
-      <div class="card">
+
+    <section class="indicadores">
+
+      <div class="indicador-card">
         <span>Total de candidaturas</span>
         <strong id="totalCandidaturas">0</strong>
       </div>
 
-      <div class="card">
+      <div class="indicador-card">
         <span>Em andamento</span>
         <strong id="emAndamento">0</strong>
       </div>
 
-      <div class="card">
+      <div class="indicador-card">
         <span>Com retorno</span>
-        <strong id="comRetorno">0%</strong>
+        <strong id="comRetorno">0</strong>
       </div>
 
-      <div class="card">
+      <div class="indicador-card">
         <span>Aprovadas</span>
         <strong id="aprovadas">0</strong>
       </div>
+
     </section>
 
-<!-- RITMO DE CANDIDATURAS -->
 
-<section class="ritmo">
+    <!-- RITMO -->
 
-  <div class="ritmo-header">
-    <div>
-      <h2>Ritmo de candidaturas</h2>
-      <p>Acompanhe seu volume de candidaturas ao longo do tempo</p>
-    </div>
-  </div>
+    <section class="dashboard-panel">
 
-  <div class="ritmo-cards">
+      <div class="panel-header">
+        <div>
+          <h2>Ritmo de candidaturas</h2>
+          <span>Acompanhe o volume de candidaturas enviadas</span>
+        </div>
+      </div>
 
-    <div class="ritmo-card">
-      <span>Hoje</span>
-      <strong id="candidaturasHoje">0</strong>
-      <small>candidaturas</small>
-    </div>
+      <div class="ritmo-grid">
 
-    <div class="ritmo-card">
-      <span>Esta semana</span>
-      <strong id="candidaturasSemana">0</strong>
-      <small>candidaturas</small>
-    </div>
+        <div class="ritmo-card">
+          <span>Hoje</span>
+          <strong id="ritmoHoje">0</strong>
+        </div>
 
-    <div class="ritmo-card">
-      <span>Este mês</span>
-      <strong id="candidaturasMes">0</strong>
-      <small>candidaturas</small>
-    </div>
+        <div class="ritmo-card">
+          <span>Esta semana</span>
+          <strong id="ritmoSemana">0</strong>
+        </div>
 
-  </div>
+        <div class="ritmo-card">
+          <span>Este mês</span>
+          <strong id="ritmoMes">0</strong>
+        </div>
 
-  <div class="dashboard-panel grafico-evolucao">
+      </div>
 
-    <div class="panel-header">
-      <h2>Evolução das candidaturas</h2>
-      <span>Últimos 30 dias</span>
-    </div>
-
-    <div
-      id="graficoEvolucao"
-      class="grafico-linha">
-    </div>
-
-  </div>
-
-</section>
+    </section>
 
 
-<!-- ANÁLISES -->
+    <!-- EVOLUÇÃO -->
 
-<section class="dashboard-visual">
+    <section class="dashboard-panel">
 
-  <div class="dashboard-panel">
+      <div class="panel-header evolucao-header">
 
-    <div class="panel-header">
-      <h2>Por status</h2>
-      <span>Distribuição dos processos seletivos</span>
-    </div>
+        <div>
+          <h2>Evolução das candidaturas</h2>
+          <span>Quantidade de candidaturas por dia</span>
+        </div>
 
-    <div
-      id="graficoStatus"
-      class="grafico-lista">
-    </div>
+        <select id="filtroMes">
+        </select>
 
-  </div>
+      </div>
 
+      <div class="grafico-container">
+        <canvas id="graficoEvolucao"></canvas>
+      </div>
 
-  <div class="dashboard-panel">
-
-    <div class="panel-header">
-      <h2>Por modalidade</h2>
-      <span>Formato de trabalho</span>
-    </div>
-
-    <div
-      id="graficoModalidade"
-      class="grafico-lista">
-    </div>
-
-  </div>
+    </section>
 
 
-  <div class="dashboard-panel">
+    <!-- DISTRIBUIÇÕES -->
 
-    <div class="panel-header">
-      <h2>Por contratação</h2>
-      <span>Tipo de vínculo</span>
-    </div>
+    <section class="dashboard-grid">
 
-    <div
-      id="graficoContratacao"
-      class="grafico-lista">
-    </div>
+      <div class="dashboard-panel">
 
-  </div>
+        <div class="panel-header">
+          <div>
+            <h2>Status das candidaturas</h2>
+            <span>Distribuição atual dos processos</span>
+          </div>
+        </div>
+
+        <div class="grafico-container grafico-pequeno">
+          <canvas id="graficoStatus"></canvas>
+        </div>
+
+      </div>
 
 
-  <div class="dashboard-panel plataforma-resumo">
+      <div class="dashboard-panel">
 
-    <div class="panel-header">
-      <h2>Onde estão as candidaturas?</h2>
-      <span>Plataforma utilizada no processo</span>
-    </div>
+        <div class="panel-header">
+          <div>
+            <h2>Modalidade</h2>
+            <span>Distribuição por modelo de trabalho</span>
+          </div>
+        </div>
 
-    <div
-      id="resumoPlataforma"
-      class="plataforma-lista">
-    </div>
+        <div class="grafico-container grafico-pequeno">
+          <canvas id="graficoModalidade"></canvas>
+        </div>
 
-  </div>
+      </div>
 
-</section>
+
+      <div class="dashboard-panel">
+
+        <div class="panel-header">
+          <div>
+            <h2>Tipo de contratação</h2>
+            <span>Distribuição das oportunidades</span>
+          </div>
+        </div>
+
+        <div class="grafico-container grafico-pequeno">
+          <canvas id="graficoContratacao"></canvas>
+        </div>
+
+      </div>
+
+
+      <div class="dashboard-panel">
+
+        <div class="panel-header">
+          <div>
+            <h2>Plataformas</h2>
+            <span>Onde as candidaturas foram encontradas</span>
+          </div>
+        </div>
+
+        <div id="resumoPlataforma" class="resumo-plataforma"></div>
+
+      </div>
+
+    </section>
+
 
     <!-- CANDIDATURAS -->
-    <section class="candidaturas">
+
+    <section class="candidaturas-section">
 
       <div class="section-header">
+
         <div>
-          <h2>Candidaturas</h2>
+          <h2>Minhas candidaturas</h2>
+          <span>Acompanhe cada processo seletivo</span>
         </div>
 
         <div class="filtros">
+
           <select id="filtroStatus">
-            <option value="">Todos os status</option>
-            <option value="candidatura enviada">Candidatura enviada</option>
-            <option value="em análise">Em análise</option>
-            <option value="entrevista rh">Entrevista RH</option>
-            <option value="entrevista técnica">Entrevista técnica</option>
-            <option value="teste técnico">Teste técnico</option>
-            <option value="entrevista gestor">Entrevista gestor</option>
-            <option value="proposta">Proposta</option>
-            <option value="aprovado">Aprovado</option>
-            <option value="negado">Negado</option>
-            <option value="desisti">Desisti</option>
+            <option value="todos">Todos os status</option>
           </select>
 
           <select id="ordenacao">
-            <option value="mais-recentes">Mais recentes</option>
-            <option value="mais-antigas">Mais antigas</option>
+            <option value="mais_recente">
+              Mais recentes
+            </option>
+
+            <option value="mais_antiga">
+              Mais antigas
+            </option>
+
+            <option value="empresa">
+              Empresa
+            </option>
           </select>
+
         </div>
+
       </div>
 
-      <div id="listaCandidaturas" class="lista-candidaturas">
-        <p class="empty-state">
-          Nenhuma candidatura carregada.
-        </p>
-      </div>
+      <div id="listaCandidaturas" class="lista-candidaturas"></div>
 
     </section>
 
   </main>
 
-  <!-- MODAL DE NOVA CANDIDATURA -->
-  <div id="modalCandidatura" class="modal hidden">
+
+  <!-- MODAL NOVA CANDIDATURA -->
+
+  <div id="modalCandidatura" class="modal">
 
     <div class="modal-content">
 
       <div class="modal-header">
+
         <div>
           <h2>Nova candidatura</h2>
-          <p>Cadastre uma nova oportunidade</p>
+          <span>Registre uma nova oportunidade</span>
         </div>
 
-        <button id="fecharModal" class="btn-fechar">×</button>
+        <button id="fecharModal" class="btn-fechar">
+          ×
+        </button>
+
       </div>
+
 
       <form id="formCandidatura">
 
         <div class="form-grid">
 
-          <div class="campo">
-            <label for="empresa">Empresa *</label>
-            <input type="text" id="empresa" required>
+          <div class="form-group">
+            <label for="empresa">Empresa</label>
+            <input
+              type="text"
+              id="empresa"
+              required
+            >
           </div>
 
-          <div class="campo">
-            <label for="vaga">Vaga *</label>
-            <input type="text" id="vaga" required>
+
+          <div class="form-group">
+            <label for="vaga">Vaga</label>
+            <input
+              type="text"
+              id="vaga"
+              required
+            >
           </div>
 
-          <div class="campo">
-            <label for="data_candidatura">Data da candidatura *</label>
-            <input type="date" id="data_candidatura" required>
+
+          <div class="form-group">
+            <label for="salarioMin">
+              Salário mínimo
+            </label>
+
+            <input
+              type="number"
+              id="salarioMin"
+              min="0"
+              step="0.01"
+            >
           </div>
 
-          <div class="campo">
-            <label for="salario_informado">Salário informado</label>
-            <input type="number" id="salario_informado" step="0.01">
+
+          <div class="form-group">
+            <label for="salarioMax">
+              Salário máximo
+            </label>
+
+            <input
+              type="number"
+              id="salarioMax"
+              min="0"
+              step="0.01"
+            >
           </div>
 
-          <div class="campo">
-            <label for="tipo_contratacao">Tipo de contratação</label>
 
-            <select id="tipo_contratacao">
-              <option value="">Selecione</option>
+          <div class="form-group">
+            <label for="salarioInformado">
+              Salário informado
+            </label>
+
+            <input
+              type="text"
+              id="salarioInformado"
+            >
+          </div>
+
+
+          <div class="form-group">
+            <label for="tipoContratacao">
+              Tipo de contratação
+            </label>
+
+            <select id="tipoContratacao">
+              <option value="">
+                Selecione
+              </option>
+
               <option value="clt">CLT</option>
               <option value="pj">PJ</option>
               <option value="temporário">Temporário</option>
@@ -250,65 +319,165 @@
               <option value="freelancer">Freelancer</option>
               <option value="outro">Outro</option>
             </select>
+
           </div>
 
-          <div class="campo">
-            <label for="modalidade">Modalidade</label>
+
+          <div class="form-group">
+
+            <label for="modalidade">
+              Modalidade
+            </label>
 
             <select id="modalidade">
-              <option value="">Selecione</option>
-              <option value="remoto">Remoto</option>
-              <option value="híbrido">Híbrido</option>
-              <option value="presencial">Presencial</option>
+
+              <option value="">
+                Selecione
+              </option>
+
+              <option value="remoto">
+                Remoto
+              </option>
+
+              <option value="híbrido">
+                Híbrido
+              </option>
+
+              <option value="presencial">
+                Presencial
+              </option>
+
             </select>
+
           </div>
 
-          <div class="campo">
-            <label for="localizacao">Localização</label>
-            <input type="text" id="localizacao">
+
+          <div class="form-group">
+
+            <label for="localizacao">
+              Localização
+            </label>
+
+            <input
+              type="text"
+              id="localizacao"
+            >
+
           </div>
 
-          <div class="campo">
-            <label for="plataforma">Plataforma</label>
+
+          <div class="form-group">
+
+            <label for="plataforma">
+              Plataforma
+            </label>
 
             <select id="plataforma">
-              <option value="">Selecione</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="gupy">Gupy</option>
-              <option value="vagas.com">Vagas.com</option>
-              <option value="infojobs">InfoJobs</option>
-              <option value="indeed">Indeed</option>
-              <option value="glassdoor">Glassdoor</option>
-              <option value="site da empresa">Site da empresa</option>
-              <option value="indicação">Indicação</option>
-              <option value="outro">Outro</option>
+
+              <option value="">
+                Selecione
+              </option>
+
+              <option value="linkedin">
+                LinkedIn
+              </option>
+
+              <option value="gupy">
+                Gupy
+              </option>
+
+              <option value="vagas.com">
+                Vagas.com
+              </option>
+
+              <option value="infojobs">
+                InfoJobs
+              </option>
+
+              <option value="indeed">
+                Indeed
+              </option>
+
+              <option value="glassdoor">
+                Glassdoor
+              </option>
+
+              <option value="site da empresa">
+                Site da empresa
+              </option>
+
+              <option value="indicação">
+                Indicação
+              </option>
+
+              <option value="outro">
+                Outro
+              </option>
+
             </select>
+
           </div>
 
-          <div class="campo campo-completo">
-            <label for="link_vaga">Link da vaga</label>
-            <input type="url" id="link_vaga">
+
+          <div class="form-group">
+
+            <label for="linkVaga">
+              Link da vaga
+            </label>
+
+            <input
+              type="url"
+              id="linkVaga"
+            >
+
           </div>
 
-          <div class="campo campo-completo">
-            <label for="observacoes">Observações</label>
-            <textarea id="observacoes" rows="3"></textarea>
+
+          <div class="form-group">
+
+            <label for="dataCandidatura">
+              Data da candidatura
+            </label>
+
+            <input
+              type="date"
+              id="dataCandidatura"
+              required
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="observacoes">
+              Observações
+            </label>
+
+            <textarea
+              id="observacoes"
+              rows="4"
+            ></textarea>
+
           </div>
 
         </div>
 
-        <div class="modal-footer">
+
+        <div class="form-actions">
 
           <button
             type="button"
             id="cancelarModal"
-            class="btn-secundario">
+            class="btn-secundario"
+          >
             Cancelar
           </button>
 
           <button
             type="submit"
-            class="btn-principal">
+            class="btn-principal"
+          >
             Salvar candidatura
           </button>
 
@@ -320,6 +489,8 @@
 
   </div>
 
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 
 </body>
