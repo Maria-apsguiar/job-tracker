@@ -1,6 +1,7 @@
 /* =========================================================
-   CONFIGURAÇÃO DA API
+   SCRIPT.JS — FRONTEND VERCEL
 ========================================================= */
+
 const API_URL =
   'https://script.google.com/macros/s/AKfycbxVubVo3fCVQjYBnG5k40vuppIvDzyPS_xDVVvxWAfB3IKuJc_vIcf0ZiDJUvU7FY4t/exec';
 
@@ -42,20 +43,19 @@ async function carregarDashboard() {
     );
 
     if (!resposta.ok) {
-      throw new Error('Falha de conexão com a API do dashboard.');
+      throw new Error('Falha de rede ao consultar o dashboard.');
     }
 
     const dados = await resposta.json();
 
     if (dados.sucesso === false) {
-      throw new Error(dados.erro || 'Erro ao processar dados do dashboard.');
+      throw new Error(dados.erro || 'Erro ao carregar métricas.');
     }
 
     const totalEl = document.getElementById('totalCandidaturas');
     const emAndamentoEl = document.getElementById('emAndamento');
     const comRetornoEl = document.getElementById('comRetorno');
     const aprovadasEl = document.getElementById('aprovadas');
-    const encerradasEl = document.getElementById('encerradas');
     const ritmoHojeEl = document.getElementById('ritmoHoje');
     const ritmoSemanaEl = document.getElementById('ritmoSemana');
     const ritmoMesEl = document.getElementById('ritmoMes');
@@ -64,7 +64,6 @@ async function carregarDashboard() {
     if (emAndamentoEl) emAndamentoEl.textContent = dados.em_andamento ?? 0;
     if (comRetornoEl) comRetornoEl.textContent = dados.com_retorno ?? 0;
     if (aprovadasEl) aprovadasEl.textContent = dados.aprovadas ?? 0;
-    if (encerradasEl) encerradasEl.textContent = dados.encerradas ?? 0;
     if (ritmoHojeEl) ritmoHojeEl.textContent = dados.ritmo?.hoje ?? 0;
     if (ritmoSemanaEl) ritmoSemanaEl.textContent = dados.ritmo?.semana ?? 0;
     if (ritmoMesEl) ritmoMesEl.textContent = dados.ritmo?.mes ?? 0;
@@ -121,7 +120,7 @@ function formatarMes(valor) {
 }
 
 /* =========================================================
-   GRÁFICOS (CHART.JS)
+   GRÁFICOS
 ========================================================= */
 function renderizarGraficoEvolucao(evolucao) {
   const canvas = document.getElementById('graficoEvolucao');
