@@ -9,6 +9,8 @@ let graficoStatus = null;
 let graficoModalidade = null;
 let graficoContratacao = null;
 
+let salvandoCandidatura = false;
+
 
 /* =========================================================
    DASHBOARD
