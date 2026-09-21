@@ -8,6 +8,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   background: #f5f6f8;
   color: #1f2937;
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
@@ -21,11 +22,9 @@ button {
   cursor: pointer;
 }
 
-
 /* =====================================================
    TOPO
 ===================================================== */
-
 .topo {
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
@@ -37,8 +36,8 @@ button {
 }
 
 .topo h1 {
-  font-size: 28px;
-  margin-bottom: 6px;
+  font-size: 26px;
+  margin-bottom: 4px;
 }
 
 .topo p {
@@ -46,22 +45,18 @@ button {
   font-size: 14px;
 }
 
-
 /* =====================================================
    CONTAINER
 ===================================================== */
-
 .container {
   width: 90%;
   max-width: 1400px;
   margin: 30px auto 60px;
 }
 
-
 /* =====================================================
    BOTÕES
 ===================================================== */
-
 .btn-principal {
   border: none;
   background: #111827;
@@ -69,23 +64,24 @@ button {
   padding: 11px 18px;
   border-radius: 8px;
   font-weight: 600;
-  transition:
-    opacity 0.2s,
-    transform 0.2s;
+  transition: opacity 0.2s, transform 0.2s, background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-principal:hover {
+.btn-principal:hover:not(:disabled) {
   opacity: 0.9;
 }
 
-.btn-principal:active {
+.btn-principal:active:not(:disabled) {
   transform: translateY(1px);
 }
 
 .btn-principal:disabled {
   cursor: not-allowed;
+  opacity: 0.6;
 }
-
 
 .btn-secundario {
   border: 1px solid #d1d5db;
@@ -93,8 +89,13 @@ button {
   color: #374151;
   padding: 10px 18px;
   border-radius: 8px;
+  transition: background-color 0.15s, border-color 0.15s;
 }
 
+.btn-secundario:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
 
 .btn-fechar {
   border: none;
@@ -102,13 +103,16 @@ button {
   font-size: 28px;
   color: #6b7280;
   line-height: 1;
+  transition: color 0.15s;
 }
 
+.btn-fechar:hover {
+  color: #111827;
+}
 
 /* =====================================================
    INDICADORES
 ===================================================== */
-
 .indicadores {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -120,25 +124,25 @@ button {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 22px;
+  padding: 20px;
 }
 
 .indicador-card span {
   display: block;
   color: #6b7280;
-  font-size: 14px;
-  margin-bottom: 12px;
+  font-size: 13px;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 
 .indicador-card strong {
   font-size: 30px;
+  color: #111827;
 }
-
 
 /* =====================================================
    PAINÉIS
 ===================================================== */
-
 .dashboard-panel {
   background: white;
   border: 1px solid #e5e7eb;
@@ -157,7 +161,7 @@ button {
 
 .panel-header h2 {
   font-size: 18px;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .panel-header span {
@@ -165,11 +169,9 @@ button {
   font-size: 13px;
 }
 
-
 /* =====================================================
    RITMO
 ===================================================== */
-
 .ritmo-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -180,25 +182,24 @@ button {
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
-  padding: 18px;
+  padding: 16px;
 }
 
 .ritmo-card span {
   display: block;
   color: #6b7280;
   font-size: 13px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .ritmo-card strong {
-  font-size: 25px;
+  font-size: 24px;
+  color: #111827;
 }
-
 
 /* =====================================================
    FILTRO DE MÊS
 ===================================================== */
-
 .evolucao-header select {
   min-width: 170px;
   padding: 9px 12px;
@@ -206,20 +207,21 @@ button {
   border-radius: 8px;
   background: white;
   color: #374151;
+  outline: none;
 }
 
-
 /* =====================================================
-   GRÁFICOS
+   GRÁFICOS (CHART.JS SAFEGUARDS)
 ===================================================== */
-
 .grafico-container {
   position: relative;
   width: 100%;
-  height: 340px;
+  height: 320px;
 }
 
 .grafico-pequeno {
+  position: relative;
+  width: 100%;
   height: 280px;
 }
 
@@ -233,11 +235,9 @@ button {
   margin-bottom: 0;
 }
 
-
 /* =====================================================
    PLATAFORMAS
 ===================================================== */
-
 .resumo-plataforma {
   display: flex;
   flex-direction: column;
@@ -248,7 +248,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
+  padding: 10px 14px;
   background: #f9fafb;
   border-radius: 8px;
   border: 1px solid #eef0f2;
@@ -261,13 +261,12 @@ button {
 
 .plataforma-item strong {
   font-size: 14px;
+  color: #111827;
 }
-
 
 /* =====================================================
    CANDIDATURAS
 ===================================================== */
-
 .candidaturas-section {
   margin-top: 34px;
 }
@@ -282,7 +281,7 @@ button {
 
 .section-header h2 {
   font-size: 20px;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .section-header span {
@@ -300,13 +299,13 @@ button {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background: white;
+  color: #374151;
+  outline: none;
 }
-
 
 /* =====================================================
    ABAS
 ===================================================== */
-
 .abas-candidaturas {
   display: flex;
   gap: 4px;
@@ -323,6 +322,7 @@ button {
   font-size: 14px;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
 }
 
 .aba-candidaturas:hover {
@@ -353,30 +353,24 @@ button {
   color: white;
 }
 
-
 /* =====================================================
    LISTA
 ===================================================== */
-
 .lista-candidaturas {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-
 /* =====================================================
    CARD DE CANDIDATURA
 ===================================================== */
-
 .candidatura-card {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 11px;
   padding: 16px 18px;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .candidatura-card:hover {
@@ -398,13 +392,13 @@ button {
 .candidatura-info h3 {
   font-size: 16px;
   margin-bottom: 4px;
+  color: #111827;
 }
 
 .candidatura-info p {
   color: #6b7280;
   font-size: 13px;
 }
-
 
 .candidatura-meta {
   display: flex;
@@ -420,20 +414,25 @@ button {
   padding: 5px 8px;
   border-radius: 6px;
   font-size: 11px;
+  border: 1px solid #f0f1f2;
 }
-
 
 .status-select {
   flex-shrink: 0;
-  padding: 7px 9px;
+  padding: 7px 10px;
   border: 1px solid #d1d5db;
   border-radius: 7px;
   background: white;
   color: #374151;
   font-size: 12px;
   cursor: pointer;
+  outline: none;
 }
 
+.status-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 .candidatura-footer {
   display: flex;
@@ -463,13 +462,12 @@ button {
   text-decoration: underline;
 }
 
-
 /* =====================================================
    CARD ENCERRADO
 ===================================================== */
-
 .candidatura-card.encerrada {
   opacity: 0.82;
+  background: #fafafa;
 }
 
 .candidatura-card.encerrada:hover {
@@ -485,16 +483,14 @@ button {
   font-weight: 600;
 }
 
-
 /* =====================================================
    ESTADO VAZIO
 ===================================================== */
-
 .lista-vazia {
   background: white;
   border: 1px dashed #d1d5db;
   border-radius: 11px;
-  padding: 35px 20px;
+  padding: 40px 20px;
   text-align: center;
 }
 
@@ -502,6 +498,7 @@ button {
   display: block;
   margin-bottom: 6px;
   font-size: 15px;
+  color: #374151;
 }
 
 .lista-vazia span {
@@ -509,18 +506,16 @@ button {
   font-size: 13px;
 }
 
-
 /* =====================================================
-   MODAIS
+   MODAIS COM SUPORTE A OVERFLOW
 ===================================================== */
-
 .modal {
   display: none;
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
   z-index: 1000;
-  padding: 30px;
+  padding: 20px;
   overflow-y: auto;
 }
 
@@ -536,17 +531,18 @@ button {
   background: white;
   border-radius: 14px;
   padding: 26px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .modal-detalhes {
   max-width: 760px;
 }
 
-
 /* =====================================================
    CABEÇALHO DO MODAL
 ===================================================== */
-
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -556,7 +552,7 @@ button {
 
 .modal-header h2 {
   font-size: 21px;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .modal-header span {
@@ -579,11 +575,9 @@ button {
   font-size: 14px;
 }
 
-
 /* =====================================================
    DETALHES
 ===================================================== */
-
 .detalhes-conteudo {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -631,11 +625,9 @@ button {
   display: none;
 }
 
-
 /* =====================================================
    FORMULÁRIO
 ===================================================== */
-
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -667,6 +659,7 @@ button {
   padding: 10px 12px;
   background: white;
   color: #1f2937;
+  transition: border-color 0.15s;
 }
 
 .form-group textarea {
@@ -677,14 +670,12 @@ button {
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #6b7280;
+  border-color: #111827;
 }
-
 
 /* =====================================================
    AÇÕES DO FORM
 ===================================================== */
-
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -692,13 +683,10 @@ button {
   margin-top: 24px;
 }
 
-
 /* =====================================================
    RESPONSIVO
 ===================================================== */
-
 @media (max-width: 900px) {
-
   .indicadores {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -722,12 +710,9 @@ button {
   .detalhe-bloco.full {
     grid-column: auto;
   }
-
 }
 
-
 @media (max-width: 650px) {
-
   .topo {
     flex-direction: column;
     align-items: flex-start;
@@ -792,5 +777,4 @@ button {
   .modal-content {
     padding: 20px;
   }
-
 }
