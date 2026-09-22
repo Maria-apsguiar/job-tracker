@@ -2,7 +2,69 @@ const API_URL =
   'https://script.google.com/macros/s/AKfycbxxW-c2KDqG-vm7ej5CLZ8d6AHsT4GUxgiCrpwDYLie-9yNkM4NuNqx1FqKSS7A5_6N/exec';
 
 
+const STATUS_ATIVOS = [
+
+  'candidatura enviada',
+
+  'em análise',
+
+  'entrevista rh',
+
+  'entrevista técnica',
+
+  'teste técnico',
+
+  'entrevista gestor',
+
+  'proposta'
+
+];
+
+
+const STATUS_APROVADO = [
+  'aprovado'
+];
+
+
+const STATUS_ENCERRADOS = [
+
+  'negado',
+
+  'desisti'
+
+];
+
+
+const STATUS_OPTIONS = [
+
+  'candidatura enviada',
+
+  'em análise',
+
+  'entrevista rh',
+
+  'entrevista técnica',
+
+  'teste técnico',
+
+  'entrevista gestor',
+
+  'proposta',
+
+  'aprovado',
+
+  'negado',
+
+  'desisti'
+
+];
+
+
 let candidaturas = [];
+
+let salvando = false;
+
+let atualizandoStatus = false;
 
 
 /* =========================
@@ -27,93 +89,84 @@ document.addEventListener(
 
 function configurarEventos() {
 
-  const btnNova =
-    document.getElementById(
+  document
+    .getElementById(
       'btnNovaCandidatura'
+    )
+    .addEventListener(
+      'click',
+      abrirModal
     );
 
-  const btnFechar =
-    document.getElementById(
+
+  document
+    .getElementById(
       'btnFecharModal'
+    )
+    .addEventListener(
+      'click',
+      fecharModal
     );
 
-  const btnCancelar =
-    document.getElementById(
+
+  document
+    .getElementById(
       'btnCancelar'
+    )
+    .addEventListener(
+      'click',
+      fecharModal
     );
 
-  const modal =
-    document.getElementById(
+
+  document
+    .getElementById(
       'modalCandidatura'
-    );
+    )
+    .addEventListener(
+      'click',
+      evento => {
 
-  const formulario =
-    document.getElementById(
-      'formCandidatura'
-    );
+        if (
+          evento.target.id ===
+          'modalCandidatura'
+        ) {
 
-  const filtro =
-    document.getElementById(
-      'filtroStatus'
-    );
+          fecharModal();
 
+        }
 
-  btnNova.addEventListener(
-    'click',
-    abrirModal
-  );
-
-
-  btnFechar.addEventListener(
-    'click',
-    fecharModal
-  );
-
-
-  btnCancelar.addEventListener(
-    'click',
-    fecharModal
-  );
-
-
-  modal.addEventListener(
-    'click',
-    evento => {
-
-      if (
-        evento.target === modal
-      ) {
-        fecharModal();
       }
-
-    }
-  );
+    );
 
 
-  formulario.addEventListener(
-    'submit',
-    salvarCandidatura
-  );
+  document
+    .getElementById(
+      'formCandidatura'
+    )
+    .addEventListener(
+      'submit',
+      salvarCandidatura
+    );
 
 
-  filtro.addEventListener(
-    'change',
-    renderizarCandidaturas
-  );
+  document
+    .getElementById(
+      'filtroMes'
+    )
+    .addEventListener(
+      'change',
+      desenharGrafico
+    );
 
 }
 
 
 /* =========================
-   API
+   CARREGAR CANDIDATURAS
 ========================= */
 
 async function carregarCandidaturas() {
-
-  mostrarMensagem(
-    'Carregando candidaturas...'
-  );
-
 
   try {
 
@@ -127,7 +180,7 @@ async function carregarCandidaturas() {
     if (!resposta.ok) {
 
       throw new Error(
-        'Erro HTTP: ' +
+        'Erro HTTP ' +
         resposta.status
       );
 
@@ -144,36 +197,140 @@ async function carregarCandidaturas() {
 
       throw new Error(
         resultado.erro ||
-        'Erro ao carregar candidaturas.'
+        'Erro ao carregar dados.'
       );
 
     }
 
 
     candidaturas =
-      resultado.dados || [];
+      Array.isArray(
+        resultado.dados
+      )
+        ? resultado.dados
+        : [];
 
 
     atualizarDashboard();
 
-    renderizarCandidaturas();
+    atualizarFiltroMes();
 
-    esconderMensagem();
+    renderizarTodasAsListas();
 
+    desenharGrafico();
 
   } catch (erro) {
 
     console.error(
-      'Erro ao carregar candidaturas:',
       erro
     );
 
 
-    mostrarMensagem(
+    mostrarErroGeral(
       'Não foi possível carregar as candidaturas.'
     );
 
   }
+
+}
+
+
+/* =========================
+   CLASSIFICAÇÃO
+========================= */
+
+function estaEmAndamento(
+  candidatura
+) {
+
+  return STATUS_ATIVOS.includes(
+    normalizarStatus(
+      candidatura.status_atual
+    )
+  );
+
+}
+
+
+function estaAprovada(
+  candidatura
+) {
+
+  return STATUS_APROVADO.includes(
+    normalizarStatus(
+      candidatura.status_atual
+    )
+  ) ||
+  candidatura.resultado ===
+    'encerrado_positivo';
+
+}
+
+
+function estaEncerrada(
+  candidatura
+) {
+
+  const status =
+    normalizarStatus(
+      candidatura.status_atual
+    );
+
+
+  if (
+    estaAprovada(candidatura)
+  ) {
+
+    return false;
+
+  }
+
+
+  if (
+    STATUS_ENCERRADOS.includes(
+      status
+    )
+  ) {
+
+    return true;
+
+  }
+
+
+  if (
+    candidatura.resultado ===
+    'sem retorno'
+  ) {
+
+    return true;
+
+  }
+
+
+  if (
+    candidatura.resultado ===
+    'encerrado_negativo'
+  ) {
+
+    return true;
+
+  }
+
+
+  return false;
+
+}
+
+
+function normalizarStatus(
+  status
+) {
+
+  return String(
+    status || ''
+  )
+    .trim()
+    .toLowerCase();
 
 }
 
@@ -190,112 +347,146 @@ function atualizarDashboard() {
 
   const andamento =
     candidaturas.filter(
-      candidatura =>
-        candidatura.resultado ===
-        'em andamento'
-    ).length;
-
-
-  const comRetorno =
-    candidaturas.filter(
-      candidatura =>
-        String(
-          candidatura.teve_retorno
-        ).toLowerCase() ===
-        'sim'
+      estaEmAndamento
     ).length;
 
 
   const aprovadas =
     candidaturas.filter(
-      candidatura =>
-        candidatura.status_atual ===
-        'aprovado' ||
-        candidatura.resultado ===
-        'encerrado_positivo'
+      estaAprovada
     ).length;
 
 
-  document.getElementById(
-    'totalCandidaturas'
-  ).textContent = total;
+  const encerradas =
+    candidaturas.filter(
+      estaEncerrada
+    ).length;
 
 
-  document.getElementById(
-    'candidaturasAndamento'
-  ).textContent = andamento;
+  document
+    .getElementById(
+      'totalCandidaturas'
+    )
+    .textContent =
+      total;
 
 
-  document.getElementById(
-    'candidaturasComRetorno'
-  ).textContent = comRetorno;
+  document
+    .getElementById(
+      'candidaturasAndamento'
+    )
+    .textContent =
+      andamento;
 
 
-  document.getElementById(
-    'candidaturasAprovadas'
-  ).textContent = aprovadas;
+  document
+    .getElementById(
+      'candidaturasAprovadas'
+    )
+    .textContent =
+      aprovadas;
+
+
+  document
+    .getElementById(
+      'candidaturasEncerradas'
+    )
+    .textContent =
+      encerradas;
+
+
+  document
+    .getElementById(
+      'contadorAtivas'
+    )
+    .textContent =
+      andamento;
+
+
+  document
+    .getElementById(
+      'contadorAprovadas'
+    )
+    .textContent =
+      aprovadas;
+
+
+  document
+    .getElementById(
+      'contadorEncerradas'
+    )
+    .textContent =
+      encerradas;
 
 }
 
 
 /* =========================
-   LISTAGEM
+   LISTAS
 ========================= */
 
-function renderizarCandidaturas() {
+function renderizarTodasAsListas() {
 
-  const container =
-    document.getElementById(
-      'listaCandidaturas'
+  const ativas =
+    candidaturas.filter(
+      estaEmAndamento
     );
 
 
-  const filtro =
-    document.getElementById(
-      'filtroStatus'
-    ).value;
+  const aprovadas =
+    candidaturas.filter(
+      estaAprovada
+    );
 
 
-  let lista =
-    [...candidaturas];
+  const encerradas =
+    candidaturas.filter(
+      estaEncerrada
+    );
 
 
-  if (filtro) {
-
-    lista =
-      lista.filter(
-        candidatura =>
-          candidatura.status_atual ===
-          filtro
-      );
-
-  }
-
-
-  lista.sort(
-    (a, b) => {
-
-      const dataA =
-        new Date(
-          a.data_candidatura || 0
-        );
-
-      const dataB =
-        new Date(
-          b.data_candidatura || 0
-        );
-
-      return dataB - dataA;
-
-    }
+  renderizarLista(
+    'listaAtivas',
+    ativas,
+    'Nenhuma vaga ativa no momento.'
   );
 
 
-  if (lista.length === 0) {
+  renderizarLista(
+    'listaAprovadas',
+    aprovadas,
+    'Nenhuma candidatura aprovada ainda.'
+  );
 
-    container.innerHTML = `
+
+  renderizarLista(
+    'listaEncerradas',
+    encerradas,
+    'Nenhuma candidatura encerrada.'
+  );
+
+}
+
+
+function renderizarLista(
+  idElemento,
+  lista,
+  mensagem
+) {
+
+  const elemento =
+    document.getElementById(
+      idElemento
+    );
+
+
+  if (
+    lista.length === 0
+  ) {
+
+    elemento.innerHTML = `
       <div class="estado-vazio">
-        Nenhuma candidatura encontrada
+        ${mensagem}
       </div>
     `;
 
@@ -304,7 +495,12 @@ function renderizarCandidaturas() {
   }
 
 
-  container.innerHTML =
+  lista.sort(
+    compararDatas
+  );
+
+
+  elemento.innerHTML =
     lista
       .map(
         criarCardCandidatura
@@ -322,42 +518,48 @@ function criarCardCandidatura(
   candidatura
 ) {
 
-  const data =
-    formatarData(
-      candidatura.data_candidatura
+  const statusAtual =
+    normalizarStatus(
+      candidatura.status_atual
     );
 
 
-  const modalidade =
-    candidatura.modalidade ||
-    '-';
+  const options =
+    STATUS_OPTIONS
+      .map(
+        status => {
+
+          const selected =
+            status ===
+            statusAtual
+              ? 'selected'
+              : '';
 
 
-  const contratacao =
-    candidatura.tipo_contratacao ||
-    '-';
+          return `
+            <option
+              value="${escaparHtml(status)}"
+              ${selected}
+            >
+              ${escaparHtml(
+                formatarStatus(status)
+              )}
+            </option>
+          `;
 
-
-  const plataforma =
-    candidatura.plataforma ||
-    '-';
-
-
-  const status =
-    candidatura.status_atual ||
-    '-';
+        }
+      )
+      .join('');
 
 
   const link =
-    candidatura.link_vaga;
-
-
-  const linkHtml =
-    link
+    candidatura.link_vaga
       ? `
         <a
           class="candidatura-link"
-          href="${escaparHtml(link)}"
+          href="${escaparHtml(
+            candidatura.link_vaga
+          )}"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -367,8 +569,19 @@ function criarCardCandidatura(
       : '';
 
 
+  const salario =
+    formatarSalario(
+      candidatura
+    );
+
+
   return `
-    <article class="candidatura-card">
+    <article
+      class="candidatura-card"
+      data-id="${escaparHtml(
+        candidatura.id_candidatura
+      )}"
+    >
 
       <div class="candidatura-topo">
 
@@ -388,9 +601,18 @@ function criarCardCandidatura(
 
         </div>
 
-        <span class="status-badge">
-          ${escaparHtml(status)}
-        </span>
+
+        <select
+          class="status-select"
+          data-id="${escaparHtml(
+            candidatura.id_candidatura
+          )}"
+          aria-label="Alterar status"
+        >
+
+          ${options}
+
+        </select>
 
       </div>
 
@@ -400,11 +622,13 @@ function criarCardCandidatura(
         <div class="info-item">
 
           <span class="info-label">
-            Data
+            Candidatura
           </span>
 
           <span class="info-value">
-            ${data}
+            ${formatarData(
+              candidatura.data_candidatura
+            )}
           </span>
 
         </div>
@@ -418,7 +642,7 @@ function criarCardCandidatura(
 
           <span class="info-value">
             ${escaparHtml(
-              modalidade
+              candidatura.modalidade || '-'
             )}
           </span>
 
@@ -433,7 +657,7 @@ function criarCardCandidatura(
 
           <span class="info-value">
             ${escaparHtml(
-              contratacao
+              candidatura.tipo_contratacao || '-'
             )}
           </span>
 
@@ -448,7 +672,37 @@ function criarCardCandidatura(
 
           <span class="info-value">
             ${escaparHtml(
-              plataforma
+              candidatura.plataforma || '-'
+            )}
+          </span>
+
+        </div>
+
+
+        <div class="info-item">
+
+          <span class="info-label">
+            Localização
+          </span>
+
+          <span class="info-value">
+            ${escaparHtml(
+              candidatura.localizacao || '-'
+            )}
+          </span>
+
+        </div>
+
+
+        <div class="info-item">
+
+          <span class="info-label">
+            Salário
+          </span>
+
+          <span class="info-value">
+            ${escaparHtml(
+              salario
             )}
           </span>
 
@@ -461,16 +715,178 @@ function criarCardCandidatura(
 
         <span class="candidatura-data">
           ${escaparHtml(
-            candidatura.localizacao || ''
+            candidatura.id_candidatura || ''
           )}
         </span>
 
-        ${linkHtml}
+        ${link}
 
       </div>
 
     </article>
   `;
+
+  /*
+   * O listener do select é adicionado
+   * após a renderização dos cards.
+   */
+}
+
+
+/* =========================
+   LISTENER DOS STATUS
+========================= */
+
+document.addEventListener(
+  'change',
+  evento => {
+
+    if (
+      !evento.target.classList.contains(
+        'status-select'
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    const id =
+      evento.target.dataset.id;
+
+
+    const novoStatus =
+      evento.target.value;
+
+
+    alterarStatus(
+      id,
+      novoStatus,
+      evento.target
+    );
+
+  }
+);
+
+
+/* =========================
+   ALTERAR STATUS
+========================= */
+
+async function alterarStatus(
+  id,
+  novoStatus,
+  select
+) {
+
+  if (
+    atualizandoStatus
+  ) {
+
+    return;
+
+  }
+
+
+  const candidatura =
+    candidaturas.find(
+      item =>
+        String(
+          item.id_candidatura
+        ) ===
+        String(id)
+    );
+
+
+  if (!candidatura) {
+
+    return;
+
+  }
+
+
+  const statusAnterior =
+    candidatura.status_atual;
+
+
+  if (
+    normalizarStatus(
+      statusAnterior
+    ) ===
+    normalizarStatus(
+      novoStatus
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  atualizandoStatus = true;
+
+  select.disabled = true;
+
+
+  try {
+
+    await enviarPostSemAguardarResposta({
+
+      acao:
+        'atualizar',
+
+      id_candidatura:
+        id,
+
+      status_atual:
+        novoStatus,
+
+      observacao_historico:
+        'Status alterado pelo frontend'
+
+    });
+
+
+    candidatura.status_atual =
+      novoStatus;
+
+
+    /*
+     * Pequeno intervalo para garantir
+     * que o Apps Script processe a gravação
+     * antes da nova leitura.
+     */
+    await esperar(
+      1200
+    );
+
+
+    await carregarCandidaturas();
+
+
+  } catch (erro) {
+
+    console.error(
+      erro
+    );
+
+
+    select.value =
+      statusAnterior;
+
+
+    alert(
+      'Não foi possível atualizar o status.'
+    );
+
+  } finally {
+
+    atualizandoStatus = false;
+
+    select.disabled = false;
+
+  }
 
 }
 
@@ -484,6 +900,15 @@ async function salvarCandidatura(
 ) {
 
   evento.preventDefault();
+
+
+  if (
+    salvando
+  ) {
+
+    return;
+
+  }
 
 
   const formulario =
@@ -575,58 +1000,61 @@ async function salvarCandidatura(
   };
 
 
-  const botao =
-    formulario.querySelector(
-      'button[type="submit"]'
+  salvando = true;
+
+
+  const botaoSalvar =
+    document.getElementById(
+      'btnSalvar'
     );
 
 
-  botao.disabled = true;
+  const botaoCancelar =
+    document.getElementById(
+      'btnCancelar'
+    );
 
-  botao.textContent =
+
+  botaoSalvar.disabled = true;
+
+  botaoCancelar.disabled = true;
+
+  botaoSalvar.textContent =
     'Salvando...';
+
+
+  mostrarMensagemFormulario(
+    'Salvando candidatura...'
+  );
 
 
   try {
 
-    const resposta =
-      await fetch(
-        API_URL,
-        {
-          method: 'POST',
+    /*
+     * Utilizamos no-cors porque o Web App
+     * do Apps Script pode manter a requisição
+     * aberta por causa do redirecionamento.
+     *
+     * A gravação já foi validada no backend.
+     * Depois do envio, fazemos uma nova leitura
+     * da API para atualizar a tela.
+     */
 
-          headers: {
-            'Content-Type':
-              'text/plain;charset=utf-8'
-          },
-
-          body:
-            JSON.stringify(
-              dados
-            )
-        }
-      );
+    await enviarPostSemAguardarResposta(
+      dados
+    );
 
 
-    const resultado =
-      await resposta.json();
-
-
-    if (
-      !resultado.sucesso
-    ) {
-
-      throw new Error(
-        resultado.erro ||
-        'Erro ao criar candidatura.'
-      );
-
-    }
+    await esperar(
+      1500
+    );
 
 
     fecharModal();
 
     formulario.reset();
+
+    esconderMensagemFormulario();
 
 
     await carregarCandidaturas();
@@ -640,22 +1068,603 @@ async function salvarCandidatura(
     );
 
 
-    alert(
-      'Não foi possível salvar a candidatura.\n\n' +
-      erro.message
+    mostrarMensagemFormulario(
+      'Não foi possível enviar a candidatura.'
     );
 
 
   } finally {
 
-    botao.disabled = false;
+    salvando = false;
 
-    botao.textContent =
+    botaoSalvar.disabled = false;
+
+    botaoCancelar.disabled = false;
+
+    botaoSalvar.textContent =
       'Salvar candidatura';
 
   }
 
 }
+
+
+/* =========================
+   POST
+========================= */
+
+function enviarPostSemAguardarResposta(
+  dados
+) {
+
+  return fetch(
+    API_URL,
+    {
+      method: 'POST',
+
+      mode: 'no-cors',
+
+      headers: {
+        'Content-Type':
+          'text/plain;charset=utf-8'
+      },
+
+      body:
+        JSON.stringify(
+          dados
+        )
+    }
+  );
+
+}
+
+
+/* =========================
+   FILTRO DE MÊS
+========================= */
+
+function atualizarFiltroMes() {
+
+  const select =
+    document.getElementById(
+      'filtroMes'
+    );
+
+
+  const meses =
+    obterMesesDisponiveis();
+
+
+  const valorAtual =
+    select.value;
+
+
+  select.innerHTML = '';
+
+
+  if (
+    meses.length === 0
+  ) {
+
+    const option =
+      document.createElement(
+        'option'
+      );
+
+    option.value = '';
+
+    option.textContent =
+      'Nenhum mês disponível';
+
+    select.appendChild(
+      option
+    );
+
+    return;
+
+  }
+
+
+  meses.forEach(
+    mes => {
+
+      const option =
+        document.createElement(
+          'option'
+        );
+
+      option.value =
+        mes.valor;
+
+      option.textContent =
+        mes.label;
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
+
+
+  if (
+    meses.some(
+      mes =>
+        mes.valor ===
+        valorAtual
+    )
+  ) {
+
+    select.value =
+      valorAtual;
+
+  } else {
+
+    select.value =
+      meses[0].valor;
+
+  }
+
+}
+
+
+function obterMesesDisponiveis() {
+
+  const mapa =
+    new Map();
+
+
+  candidaturas.forEach(
+    candidatura => {
+
+      const chave =
+        obterMesCandidatura(
+          candidatura
+        );
+
+
+      if (!chave) {
+        return;
+      }
+
+
+      if (
+        !mapa.has(chave)
+      ) {
+
+        mapa.set(
+          chave,
+          formatarMes(
+            chave
+          )
+        );
+
+      }
+
+    }
+  );
+
+
+  return Array
+    .from(
+      mapa.entries()
+    )
+    .sort(
+      (a, b) =>
+        b[0].localeCompare(
+          a[0]
+        )
+    )
+    .map(
+      ([valor, label]) => ({
+        valor,
+        label
+      })
+    );
+
+}
+
+
+/* =========================
+   GRÁFICO
+========================= */
+
+function desenharGrafico() {
+
+  const canvas =
+    document.getElementById(
+      'graficoCandidaturas'
+    );
+
+
+  const wrapper =
+    canvas.parentElement;
+
+
+  const largura =
+    wrapper.clientWidth;
+
+
+  const altura =
+    wrapper.clientHeight;
+
+
+  if (
+    largura <= 0 ||
+    altura <= 0
+  ) {
+
+    return;
+
+  }
+
+
+  const proporcao =
+    window.devicePixelRatio || 1;
+
+
+  canvas.width =
+    largura * proporcao;
+
+  canvas.height =
+    altura * proporcao;
+
+
+  const contexto =
+    canvas.getContext(
+      '2d'
+    );
+
+
+  contexto.scale(
+    proporcao,
+    proporcao
+  );
+
+
+  contexto.clearRect(
+    0,
+    0,
+    largura,
+    altura
+  );
+
+
+  const mesSelecionado =
+    document.getElementById(
+      'filtroMes'
+    ).value;
+
+
+  if (!mesSelecionado) {
+
+    desenharMensagemGrafico(
+      contexto,
+      largura,
+      altura,
+      'Nenhum dado disponível'
+    );
+
+    return;
+
+  }
+
+
+  const ano =
+    Number(
+      mesSelecionado
+        .split('-')[0]
+    );
+
+
+  const mes =
+    Number(
+      mesSelecionado
+        .split('-')[1]
+    );
+
+
+  const diasNoMes =
+    new Date(
+      ano,
+      mes,
+      0
+    ).getDate();
+
+
+  const valores =
+    Array(
+      diasNoMes
+    ).fill(0);
+
+
+  candidaturas.forEach(
+    candidatura => {
+
+      const data =
+        extrairDataLocal(
+          candidatura.data_candidatura
+        );
+
+
+      if (!data) {
+        return;
+      }
+
+
+      if (
+        data.ano === ano &&
+        data.mes === mes
+      ) {
+
+        valores[
+          data.dia - 1
+        ]++;
+
+      }
+
+    }
+  );
+
+
+  const maiorValor =
+    Math.max(
+      ...valores,
+      1
+    );
+
+
+  const margemEsquerda =
+    45;
+
+  const margemDireita =
+    18;
+
+  const margemTopo =
+    20;
+
+  const margemInferior =
+    45;
+
+
+  const areaLargura =
+    largura -
+    margemEsquerda -
+    margemDireita;
+
+
+  const areaAltura =
+    altura -
+    margemTopo -
+    margemInferior;
+
+
+  const contexto2 =
+    contexto;
+
+
+  contexto2.font =
+    '12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+
+  contexto2.fillStyle =
+    '#6b7280';
+
+
+  contexto2.strokeStyle =
+    '#e5e7eb';
+
+
+  contexto2.lineWidth =
+    1;
+
+
+  /*
+   * Linhas horizontais.
+   */
+
+  const linhas =
+    4;
+
+
+  for (
+    let i = 0;
+    i <= linhas;
+    i++
+  ) {
+
+    const y =
+      margemTopo +
+      areaAltura -
+      (
+        areaAltura *
+        i /
+        linhas
+      );
+
+
+    contexto2.beginPath();
+
+    contexto2.moveTo(
+      margemEsquerda,
+      y
+    );
+
+    contexto2.lineTo(
+      largura -
+        margemDireita,
+      y
+    );
+
+    contexto2.stroke();
+
+
+    const valor =
+      Math.round(
+        maiorValor *
+        i /
+        linhas
+      );
+
+
+    contexto2.fillText(
+      String(valor),
+      10,
+      y + 4
+    );
+
+  }
+
+
+  const larguraColuna =
+    areaLargura /
+    diasNoMes;
+
+
+  const larguraBarra =
+    Math.max(
+      3,
+      larguraColuna * 0.58
+    );
+
+
+  valores.forEach(
+    (valor, indice) => {
+
+      const alturaBarra =
+        valor === 0
+          ? 0
+          :
+          (
+            valor /
+            maiorValor
+          ) *
+          areaAltura;
+
+
+      const x =
+        margemEsquerda +
+        (
+          indice *
+          larguraColuna
+        ) +
+        (
+          larguraColuna -
+          larguraBarra
+        ) / 2;
+
+
+      const y =
+        margemTopo +
+        areaAltura -
+        alturaBarra;
+
+
+      if (
+        valor > 0
+      ) {
+
+        contexto2.fillStyle =
+          '#111827';
+
+
+        contexto2.fillRect(
+          x,
+          y,
+          larguraBarra,
+          alturaBarra
+        );
+
+
+        contexto2.fillStyle =
+          '#374151';
+
+
+        contexto2.textAlign =
+          'center';
+
+
+        contexto2.fillText(
+          String(valor),
+          x +
+            larguraBarra / 2,
+          y - 6
+        );
+
+      }
+
+
+      /*
+       * Mostra os dias sem poluir
+       * o gráfico.
+       */
+      if (
+        diasNoMes <= 16 ||
+        indice % 2 === 0
+      ) {
+
+        contexto2.fillStyle =
+          '#9ca3af';
+
+
+        contexto2.fillText(
+          String(
+            indice + 1
+          ),
+          x +
+            larguraBarra / 2,
+          altura -
+            15
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+function desenharMensagemGrafico(
+  contexto,
+  largura,
+  altura,
+  mensagem
+) {
+
+  contexto.fillStyle =
+    '#9ca3af';
+
+
+  contexto.font =
+    '14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+
+  contexto.textAlign =
+    'center';
+
+
+  contexto.fillText(
+    mensagem,
+    largura / 2,
+    altura / 2
+  );
+
+}
+
+
+/* =========================
+   REDIMENSIONAMENTO
+========================= */
+
+window.addEventListener(
+  'resize',
+  () => {
+
+    desenharGrafico();
+
+  }
+);
 
 
 /* =========================
@@ -681,7 +1690,9 @@ function abrirModal() {
     );
 
 
-  if (!data.value) {
+  if (
+    !data.value
+  ) {
 
     const hoje =
       new Date();
@@ -694,13 +1705,19 @@ function abrirModal() {
     const mes =
       String(
         hoje.getMonth() + 1
-      ).padStart(2, '0');
+      ).padStart(
+        2,
+        '0'
+      );
 
 
     const dia =
       String(
         hoje.getDate()
-      ).padStart(2, '0');
+      ).padStart(
+        2,
+        '0'
+      );
 
 
     data.value =
@@ -712,6 +1729,15 @@ function abrirModal() {
 
 
 function fecharModal() {
+
+  if (
+    salvando
+  ) {
+
+    return;
+
+  }
+
 
   const modal =
     document.getElementById(
@@ -730,13 +1756,13 @@ function fecharModal() {
    MENSAGENS
 ========================= */
 
-function mostrarMensagem(
+function mostrarMensagemFormulario(
   mensagem
 ) {
 
   const elemento =
     document.getElementById(
-      'mensagem'
+      'mensagemFormulario'
     );
 
 
@@ -745,17 +1771,17 @@ function mostrarMensagem(
 
 
   elemento.classList.add(
-    'visivel'
+    'visible'
   );
 
 }
 
 
-function esconderMensagem() {
+function esconderMensagemFormulario() {
 
   const elemento =
     document.getElementById(
-      'mensagem'
+      'mensagemFormulario'
     );
 
 
@@ -764,27 +1790,84 @@ function esconderMensagem() {
 
 
   elemento.classList.remove(
-    'visivel'
+    'visible'
+  );
+
+}
+
+
+function mostrarErroGeral(
+  mensagem
+) {
+
+  console.error(
+    mensagem
   );
 
 }
 
 
 /* =========================
-   FORMATAÇÃO
+   FORMATAÇÃO DE DATA
 ========================= */
 
-function formatarData(
+function extrairDataLocal(
   valor
 ) {
 
   if (!valor) {
-    return '-';
+    return null;
+  }
+
+
+  const texto =
+    String(valor);
+
+
+  /*
+   * Quando a API retorna
+   * "2026-09-21T03:00:00.000Z",
+   * usamos diretamente a parte
+   * YYYY-MM-DD para não sofrer
+   * alteração de dia pelo fuso.
+   */
+
+  const correspondencia =
+    texto.match(
+      /^(\d{4})-(\d{2})-(\d{2})/
+    );
+
+
+  if (
+    correspondencia
+  ) {
+
+    return {
+
+      ano:
+        Number(
+          correspondencia[1]
+        ),
+
+      mes:
+        Number(
+          correspondencia[2]
+        ),
+
+      dia:
+        Number(
+          correspondencia[3]
+        )
+
+    };
+
   }
 
 
   const data =
-    new Date(valor);
+    new Date(
+      valor
+    );
 
 
   if (
@@ -793,17 +1876,335 @@ function formatarData(
     )
   ) {
 
-    return valor;
+    return null;
 
   }
 
 
-  return data.toLocaleDateString(
+  return {
+
+    ano:
+      data.getFullYear(),
+
+    mes:
+      data.getMonth() + 1,
+
+    dia:
+      data.getDate()
+
+  };
+
+}
+
+
+function formatarData(
+  valor
+) {
+
+  const data =
+    extrairDataLocal(
+      valor
+    );
+
+
+  if (!data) {
+    return '-';
+  }
+
+
+  return (
+    String(data.dia).padStart(
+      2,
+      '0'
+    ) +
+    '/' +
+    String(data.mes).padStart(
+      2,
+      '0'
+    ) +
+    '/' +
+    data.ano
+  );
+
+}
+
+
+function obterMesCandidatura(
+  candidatura
+) {
+
+  const data =
+    extrairDataLocal(
+      candidatura.data_candidatura
+    );
+
+
+  if (!data) {
+    return null;
+  }
+
+
+  return (
+    data.ano +
+    '-' +
+    String(
+      data.mes
+    ).padStart(
+      2,
+      '0'
+    )
+  );
+
+}
+
+
+function formatarMes(
+  valor
+) {
+
+  const partes =
+    valor.split('-');
+
+
+  const ano =
+    Number(
+      partes[0]
+    );
+
+
+  const mes =
+    Number(
+      partes[1]
+    );
+
+
+  const nomes =
+    [
+      'Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro'
+    ];
+
+
+  return (
+    nomes[mes - 1] +
+    ' ' +
+    ano
+  );
+
+}
+
+
+/* =========================
+   FORMATAÇÃO DE STATUS
+========================= */
+
+function formatarStatus(
+  status
+) {
+
+  const mapa = {
+
+    'candidatura enviada':
+      'Candidatura enviada',
+
+    'em análise':
+      'Em análise',
+
+    'entrevista rh':
+      'Entrevista RH',
+
+    'entrevista técnica':
+      'Entrevista técnica',
+
+    'teste técnico':
+      'Teste técnico',
+
+    'entrevista gestor':
+      'Entrevista gestor',
+
+    'proposta':
+      'Proposta',
+
+    'aprovado':
+      'Aprovado',
+
+    'negado':
+      'Negado',
+
+    'desisti':
+      'Desisti'
+
+  };
+
+
+  return (
+    mapa[status] ||
+    status
+  );
+
+}
+
+
+/* =========================
+   SALÁRIO
+========================= */
+
+function formatarSalario(
+  candidatura
+) {
+
+  if (
+    candidatura.salario_informado
+  ) {
+
+    return String(
+      candidatura.salario_informado
+    );
+
+  }
+
+
+  const minimo =
+    Number(
+      candidatura.salario_min
+    );
+
+
+  const maximo =
+    Number(
+      candidatura.salario_max
+    );
+
+
+  if (
+    minimo &&
+    maximo
+  ) {
+
+    return (
+      formatarMoeda(minimo) +
+      ' a ' +
+      formatarMoeda(maximo)
+    );
+
+  }
+
+
+  if (
+    minimo
+  ) {
+
+    return formatarMoeda(
+      minimo
+    );
+
+  }
+
+
+  if (
+    maximo
+  ) {
+
+    return formatarMoeda(
+      maximo
+    );
+
+  }
+
+
+  return '-';
+
+}
+
+
+function formatarMoeda(
+  valor
+) {
+
+  return Number(
+    valor
+  ).toLocaleString(
     'pt-BR',
     {
-      timeZone: 'America/Sao_Paulo'
+      style: 'currency',
+      currency: 'BRL',
+      maximumFractionDigits: 0
     }
   );
+
+}
+
+
+/* =========================
+   ORDENAÇÃO
+========================= */
+
+function compararDatas(
+  a,
+  b
+) {
+
+  const dataA =
+    extrairDataLocal(
+      a.data_candidatura
+    );
+
+
+  const dataB =
+    extrairDataLocal(
+      b.data_candidatura
+    );
+
+
+  if (!dataA) {
+    return 1;
+  }
+
+
+  if (!dataB) {
+    return -1;
+  }
+
+
+  const valorA =
+    Number(
+      dataA.ano +
+      String(dataA.mes).padStart(
+        2,
+        '0'
+      ) +
+      String(dataA.dia).padStart(
+        2,
+        '0'
+      )
+    );
+
+
+  const valorB =
+    Number(
+      dataB.ano +
+      String(dataB.mes).padStart(
+        2,
+        '0'
+      ) +
+      String(dataB.dia).padStart(
+        2,
+        '0'
+      )
+    );
+
+
+  return valorB - valorA;
 
 }
 
@@ -816,7 +2217,9 @@ function escaparHtml(
   valor
 ) {
 
-  return String(valor)
+  return String(
+    valor ?? ''
+  )
     .replace(
       /&/g,
       '&amp;'
@@ -837,5 +2240,24 @@ function escaparHtml(
       /'/g,
       '&#039;'
     );
+
+}
+
+
+/* =========================
+   UTILITÁRIO
+========================= */
+
+function esperar(
+  milissegundos
+) {
+
+  return new Promise(
+    resolve =>
+      setTimeout(
+        resolve,
+        milissegundos
+      )
+  );
 
 }
