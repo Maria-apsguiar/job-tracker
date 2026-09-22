@@ -4,12 +4,21 @@
   padding: 0;
 }
 
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
   background: #f5f6f8;
+
   color: #1f2937;
-  -webkit-font-smoothing: antialiased;
+
+  min-height: 100vh;
 }
+
 
 button,
 input,
@@ -18,763 +27,656 @@ textarea {
   font: inherit;
 }
 
+
 button {
   cursor: pointer;
 }
 
-/* =====================================================
-   TOPO
-===================================================== */
-.topo {
+
+/* HEADER */
+
+.header {
   background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 24px 5%;
+
+  border-bottom:
+    1px solid #e5e7eb;
+}
+
+
+.header-content {
+  max-width: 1200px;
+
+  margin: 0 auto;
+
+  padding: 24px;
+
   display: flex;
-  justify-content: space-between;
+
   align-items: center;
+
+  justify-content: space-between;
+
   gap: 20px;
 }
 
-.topo h1 {
+
+.header h1 {
   font-size: 26px;
-  margin-bottom: 4px;
+
+  font-weight: 700;
+
+  color: #111827;
 }
 
-.topo p {
+
+.header p {
+  margin-top: 5px;
+
   color: #6b7280;
+
   font-size: 14px;
 }
 
-/* =====================================================
-   CONTAINER
-===================================================== */
+
+/* CONTAINER */
+
 .container {
-  width: 90%;
-  max-width: 1400px;
-  margin: 30px auto 60px;
+  max-width: 1200px;
+
+  margin: 0 auto;
+
+  padding: 32px 24px 60px;
 }
 
-/* =====================================================
-   BOTÕES
-===================================================== */
-.btn-principal {
+
+/* BOTÕES */
+
+.btn-primary {
   border: none;
+
   background: #111827;
-  color: white;
+
+  color: #ffffff;
+
   padding: 11px 18px;
+
   border-radius: 8px;
+
   font-weight: 600;
-  transition: opacity 0.2s, transform 0.2s, background-color 0.2s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+
+  transition: opacity 0.2s;
 }
 
-.btn-principal:hover:not(:disabled) {
-  opacity: 0.9;
+
+.btn-primary:hover {
+  opacity: 0.88;
 }
 
-.btn-principal:active:not(:disabled) {
-  transform: translateY(1px);
-}
 
-.btn-principal:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.btn-secundario {
+.btn-secondary {
   border: 1px solid #d1d5db;
-  background: white;
+
+  background: #ffffff;
+
   color: #374151;
+
   padding: 10px 18px;
+
   border-radius: 8px;
-  transition: background-color 0.15s, border-color 0.15s;
+
+  font-weight: 600;
 }
 
-.btn-secundario:hover {
+
+.btn-secondary:hover {
   background: #f9fafb;
-  border-color: #9ca3af;
 }
 
-.btn-fechar {
-  border: none;
-  background: transparent;
-  font-size: 28px;
-  color: #6b7280;
-  line-height: 1;
-  transition: color 0.15s;
-}
 
-.btn-fechar:hover {
-  color: #111827;
-}
+/* DASHBOARD */
 
-/* =====================================================
-   INDICADORES
-===================================================== */
-.indicadores {
+.dashboard {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
   gap: 16px;
-  margin-bottom: 20px;
+
+  margin-bottom: 32px;
 }
 
-.indicador-card {
-  background: white;
-  border: 1px solid #e5e7eb;
+
+.kpi-card {
+  background: #ffffff;
+
+  border:
+    1px solid #e5e7eb;
+
   border-radius: 12px;
-  padding: 20px;
-}
 
-.indicador-card span {
-  display: block;
-  color: #6b7280;
-  font-size: 13px;
-  margin-bottom: 10px;
-  font-weight: 500;
-}
-
-.indicador-card strong {
-  font-size: 30px;
-  color: #111827;
-}
-
-/* =====================================================
-   PAINÉIS
-===================================================== */
-.dashboard-panel {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
   padding: 22px;
-  margin-bottom: 20px;
-}
 
-.panel-header {
+  min-height: 120px;
+
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
-}
 
-.panel-header h2 {
-  font-size: 18px;
-  margin-bottom: 4px;
-}
-
-.panel-header span {
-  color: #6b7280;
-  font-size: 13px;
-}
-
-/* =====================================================
-   RITMO
-===================================================== */
-.ritmo-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-
-.ritmo-card {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 16px;
-}
-
-.ritmo-card span {
-  display: block;
-  color: #6b7280;
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-
-.ritmo-card strong {
-  font-size: 24px;
-  color: #111827;
-}
-
-/* =====================================================
-   FILTRO DE MÊS
-===================================================== */
-.evolucao-header select {
-  min-width: 170px;
-  padding: 9px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: white;
-  color: #374151;
-  outline: none;
-}
-
-/* =====================================================
-   GRÁFICOS (CHART.JS SAFEGUARDS)
-===================================================== */
-.grafico-container {
-  position: relative;
-  width: 100%;
-  height: 320px;
-}
-
-.grafico-pequeno {
-  position: relative;
-  width: 100%;
-  height: 280px;
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-
-.dashboard-grid .dashboard-panel {
-  margin-bottom: 0;
-}
-
-/* =====================================================
-   PLATAFORMAS
-===================================================== */
-.resumo-plataforma {
-  display: flex;
   flex-direction: column;
-  gap: 10px;
-}
 
-.plataforma-item {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #eef0f2;
 }
 
-.plataforma-item span {
-  color: #4b5563;
+
+.kpi-label {
   font-size: 14px;
+
+  color: #6b7280;
 }
 
-.plataforma-item strong {
-  font-size: 14px;
+
+.kpi-value {
+  font-size: 30px;
+
   color: #111827;
 }
 
-/* =====================================================
-   CANDIDATURAS
-===================================================== */
-.candidaturas-section {
-  margin-top: 34px;
+
+/* SEÇÃO */
+
+.section {
+  background: #ffffff;
+
+  border:
+    1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  padding: 24px;
 }
+
 
 .section-header {
   display: flex;
+
+  align-items: flex-end;
+
   justify-content: space-between;
-  align-items: center;
+
   gap: 20px;
-  margin-bottom: 18px;
-}
 
-.section-header h2 {
-  font-size: 20px;
-  margin-bottom: 4px;
-}
-
-.section-header span {
-  color: #6b7280;
-  font-size: 13px;
-}
-
-.filtros {
-  display: flex;
-  gap: 10px;
-}
-
-.filtros select {
-  padding: 9px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: white;
-  color: #374151;
-  outline: none;
-}
-
-/* =====================================================
-   ABAS
-===================================================== */
-.abas-candidaturas {
-  display: flex;
-  gap: 4px;
-  border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 18px;
-}
-
-.aba-candidaturas {
-  border: none;
-  background: transparent;
-  color: #6b7280;
-  padding: 11px 16px;
-  font-weight: 600;
-  font-size: 14px;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.aba-candidaturas:hover {
-  color: #111827;
-}
-
-.aba-candidaturas.ativa {
-  color: #111827;
-  border-bottom-color: #111827;
-}
-
-.aba-candidaturas span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 20px;
-  margin-left: 6px;
-  padding: 0 6px;
-  border-radius: 10px;
-  background: #f3f4f6;
-  color: #4b5563;
-  font-size: 11px;
-}
-
-.aba-candidaturas.ativa span {
-  background: #111827;
-  color: white;
-}
-
-/* =====================================================
-   LISTA
-===================================================== */
-.lista-candidaturas {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* =====================================================
-   CARD DE CANDIDATURA
-===================================================== */
-.candidatura-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 11px;
-  padding: 16px 18px;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.candidatura-card:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
-}
-
-.candidatura-topo {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 18px;
-}
-
-.candidatura-info {
-  min-width: 0;
-}
-
-.candidatura-info h3 {
-  font-size: 16px;
-  margin-bottom: 4px;
-  color: #111827;
-}
-
-.candidatura-info p {
-  color: #6b7280;
-  font-size: 13px;
-}
-
-.candidatura-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 13px;
-  flex-wrap: wrap;
-}
-
-.detalhe {
-  background: #f8f9fa;
-  color: #5b6470;
-  padding: 5px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  border: 1px solid #f0f1f2;
-}
-
-.status-select {
-  flex-shrink: 0;
-  padding: 7px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 7px;
-  background: white;
-  color: #374151;
-  font-size: 12px;
-  cursor: pointer;
-  outline: none;
-}
-
-.status-select:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.candidatura-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-  margin-top: 13px;
-  padding-top: 11px;
-  border-top: 1px solid #f0f1f2;
-}
-
-.candidatura-atualizacao {
-  color: #9ca3af;
-  font-size: 11px;
-}
-
-.btn-detalhes {
-  border: none;
-  background: transparent;
-  color: #374151;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 0;
-}
-
-.btn-detalhes:hover {
-  text-decoration: underline;
-}
-
-/* =====================================================
-   CARD ENCERRADO
-===================================================== */
-.candidatura-card.encerrada {
-  opacity: 0.82;
-  background: #fafafa;
-}
-
-.candidatura-card.encerrada:hover {
-  opacity: 1;
-}
-
-.status-encerrado {
-  font-size: 11px;
-  padding: 5px 8px;
-  border-radius: 6px;
-  background: #f3f4f6;
-  color: #6b7280;
-  font-weight: 600;
-}
-
-/* =====================================================
-   ESTADO VAZIO
-===================================================== */
-.lista-vazia {
-  background: white;
-  border: 1px dashed #d1d5db;
-  border-radius: 11px;
-  padding: 40px 20px;
-  text-align: center;
-}
-
-.lista-vazia strong {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 15px;
-  color: #374151;
-}
-
-.lista-vazia span {
-  color: #9ca3af;
-  font-size: 13px;
-}
-
-/* =====================================================
-   MODAIS COM SUPORTE A OVERFLOW
-===================================================== */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 1000;
-  padding: 20px;
-  overflow-y: auto;
-}
-
-.modal.ativo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  width: 100%;
-  max-width: 900px;
-  background: white;
-  border-radius: 14px;
-  padding: 26px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-.modal-detalhes {
-  max-width: 760px;
-}
-
-/* =====================================================
-   CABEÇALHO DO MODAL
-===================================================== */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
   margin-bottom: 24px;
 }
 
-.modal-header h2 {
-  font-size: 21px;
-  margin-bottom: 4px;
+
+.section-header h2 {
+  font-size: 20px;
+
+  color: #111827;
 }
 
-.modal-header span {
+
+.section-header p {
+  margin-top: 5px;
+
   color: #6b7280;
-  font-size: 13px;
-}
 
-.detalhes-label {
-  display: block;
-  margin-bottom: 7px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 10px !important;
-  font-weight: 700;
-  color: #9ca3af !important;
-}
-
-.detalhes-vaga {
-  color: #6b7280;
   font-size: 14px;
 }
 
-/* =====================================================
-   DETALHES
-===================================================== */
-.detalhes-conteudo {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
 
-.detalhe-bloco {
-  background: #f9fafb;
-  border: 1px solid #eef0f2;
-  border-radius: 9px;
-  padding: 13px;
-}
+/* FILTRO */
 
-.detalhe-bloco.full {
-  grid-column: 1 / -1;
-}
+.filters select {
+  min-width: 190px;
 
-.detalhe-bloco-label {
-  display: block;
-  color: #9ca3af;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-}
+  padding: 10px 12px;
 
-.detalhe-bloco-valor {
+  border:
+    1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
   color: #374151;
-  font-size: 13px;
-  line-height: 1.5;
-  word-break: break-word;
+
+  outline: none;
 }
 
-.detalhes-acoes {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
 
-.btn-link-vaga {
-  text-decoration: none;
-}
+/* MENSAGEM */
 
-.btn-link-vaga.oculto {
+.mensagem {
   display: none;
+
+  padding: 12px 14px;
+
+  margin-bottom: 18px;
+
+  border-radius: 8px;
+
+  font-size: 14px;
 }
 
-/* =====================================================
-   FORMULÁRIO
-===================================================== */
-.form-grid {
+
+.mensagem.visivel {
+  display: block;
+
+  background: #f3f4f6;
+
+  color: #374151;
+}
+
+
+/* GRID CANDIDATURAS */
+
+.candidaturas-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
   gap: 16px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
+
+/* CARD CANDIDATURA */
+
+.candidatura-card {
+  border:
+    1px solid #e5e7eb;
+
+  border-radius: 10px;
+
+  padding: 18px;
+
+  background: #ffffff;
+
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
 }
 
-.form-group:last-child {
-  grid-column: 1 / -1;
+
+.candidatura-card:hover {
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.06);
+
+  transform: translateY(-1px);
 }
+
+
+.candidatura-topo {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 16px;
+
+  margin-bottom: 14px;
+}
+
+
+.candidatura-vaga {
+  font-size: 17px;
+
+  font-weight: 700;
+
+  color: #111827;
+}
+
+
+.candidatura-empresa {
+  margin-top: 4px;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+
+.status-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  padding: 5px 9px;
+
+  border-radius: 999px;
+
+  background: #f3f4f6;
+
+  color: #374151;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+
+.candidatura-info {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 12px;
+
+  margin-top: 14px;
+}
+
+
+.info-item {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.info-label {
+  font-size: 11px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+
+  color: #9ca3af;
+}
+
+
+.info-value {
+  font-size: 13px;
+
+  color: #374151;
+}
+
+
+.candidatura-footer {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-top: 18px;
+
+  padding-top: 14px;
+
+  border-top:
+    1px solid #f0f0f0;
+}
+
+
+.candidatura-data {
+  color: #9ca3af;
+
+  font-size: 12px;
+}
+
+
+.candidatura-link {
+  color: #374151;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
+
+.candidatura-link:hover {
+  text-decoration: underline;
+}
+
+
+/* ESTADO VAZIO */
+
+.estado-vazio {
+  grid-column: 1 / -1;
+
+  padding: 50px 20px;
+
+  text-align: center;
+
+  color: #9ca3af;
+
+  border:
+    1px dashed #d1d5db;
+
+  border-radius: 10px;
+}
+
+
+/* MODAL */
+
+.modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background:
+    rgba(17, 24, 39, 0.45);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  z-index: 1000;
+}
+
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+
+.modal {
+  width: 100%;
+
+  max-width: 760px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  background: #ffffff;
+
+  border-radius: 14px;
+
+  padding: 26px;
+}
+
+
+.modal-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  margin-bottom: 24px;
+}
+
+
+.modal-header h2 {
+  font-size: 21px;
+}
+
+
+.modal-header p {
+  margin-top: 5px;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+
+.btn-close {
+  border: none;
+
+  background: transparent;
+
+  font-size: 28px;
+
+  line-height: 1;
+
+  color: #6b7280;
+}
+
+
+/* FORMULÁRIO */
+
+.form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 16px;
+}
+
+
+.form-group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+
+  margin-bottom: 16px;
+}
+
 
 .form-group label {
   font-size: 13px;
+
   font-weight: 600;
+
   color: #374151;
 }
+
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  border: 1px solid #d1d5db;
+
+  border:
+    1px solid #d1d5db;
+
   border-radius: 8px;
+
   padding: 10px 12px;
-  background: white;
-  color: #1f2937;
-  transition: border-color 0.15s;
+
+  background: #ffffff;
+
+  color: #111827;
+
+  outline: none;
 }
+
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #6b7280;
+}
+
 
 .form-group textarea {
   resize: vertical;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #111827;
-}
 
-/* =====================================================
-   AÇÕES DO FORM
-===================================================== */
-.form-actions {
+/* AÇÕES MODAL */
+
+.modal-actions {
   display: flex;
+
   justify-content: flex-end;
+
   gap: 10px;
-  margin-top: 24px;
+
+  margin-top: 10px;
+
+  padding-top: 18px;
+
+  border-top:
+    1px solid #e5e7eb;
 }
 
-/* =====================================================
-   RESPONSIVO
-===================================================== */
-@media (max-width: 900px) {
-  .indicadores {
-    grid-template-columns: repeat(2, 1fr);
+
+/* RESPONSIVO */
+
+@media (max-width: 850px) {
+
+  .dashboard {
+    grid-template-columns:
+      repeat(2, 1fr);
   }
 
-  .dashboard-grid {
+  .candidaturas-grid {
     grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .header-content {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .container {
+    padding:
+      24px 16px 40px;
+  }
+
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    padding: 18px;
+  }
+
+  .section-header {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .filters select {
+    width: 100%;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
   }
 
-  .form-group:last-child {
-    grid-column: auto;
-  }
-
-  .detalhes-conteudo {
+  .candidatura-info {
     grid-template-columns: 1fr;
-  }
-
-  .detalhe-bloco.full {
-    grid-column: auto;
-  }
-}
-
-@media (max-width: 650px) {
-  .topo {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .topo .btn-principal {
-    width: 100%;
-  }
-
-  .indicadores {
-    grid-template-columns: 1fr;
-  }
-
-  .ritmo-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .filtros {
-    width: 100%;
-    flex-direction: column;
-  }
-
-  .filtros select {
-    width: 100%;
-  }
-
-  .panel-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .evolucao-header select {
-    width: 100%;
-  }
-
-  .grafico-container {
-    height: 300px;
-  }
-
-  .candidatura-topo {
-    flex-direction: column;
-  }
-
-  .status-select {
-    width: 100%;
-  }
-
-  .candidatura-footer {
-    align-items: flex-start;
-    flex-direction: column;
   }
 
   .modal {
-    padding: 15px;
-  }
-
-  .modal-content {
     padding: 20px;
   }
+
 }
