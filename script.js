@@ -2,22 +2,26 @@ const API_URL =
   'https://script.google.com/macros/s/AKfycbxxW-c2KDqG-vm7ej5CLZ8d6AHsT4GUxgiCrpwDYLie-9yNkM4NuNqx1FqKSS7A5_6N/exec';
 
 
-const STATUS_ATIVOS = [
+let candidaturas = [];
 
+let filtroAtual = 'todas';
+
+let graficoCandidaturas = null;
+let graficoPlataformas = null;
+let graficoModalidades = null;
+let graficoContratacoes = null;
+
+let salvando = false;
+
+
+const STATUS_ANDAMENTO = [
   'candidatura enviada',
-
   'em análise',
-
   'entrevista rh',
-
   'entrevista técnica',
-
   'teste técnico',
-
   'entrevista gestor',
-
   'proposta'
-
 ];
 
 
@@ -26,145 +30,61 @@ const STATUS_APROVADO = [
 ];
 
 
-const STATUS_ENCERRADOS = [
-
+const STATUS_ENCERRADO = [
   'negado',
-
   'desisti'
+];
 
+
+const CORES_GRAFICO = [
+  '#5B5FEF',
+  '#20B486',
+  '#F59E0B',
+  '#EF5B7A',
+  '#38A3DB',
+  '#8B5CF6',
+  '#F97316',
+  '#14B8A6',
+  '#EC4899',
+  '#64748B'
 ];
 
 
 const STATUS_OPTIONS = [
-
   'candidatura enviada',
-
   'em análise',
-
   'entrevista rh',
-
   'entrevista técnica',
-
   'teste técnico',
-
   'entrevista gestor',
-
   'proposta',
-
   'aprovado',
-
   'negado',
-
   'desisti'
-
 ];
 
-
-let candidaturas = [];
-
-let salvando = false;
-
-let atualizandoStatus = false;
-
-
-/* =========================
-   INICIALIZAÇÃO
-========================= */
 
 document.addEventListener(
   'DOMContentLoaded',
   () => {
 
-    configurarEventos();
-
     carregarCandidaturas();
+
+    document
+      .getElementById('filtroMes')
+      .addEventListener(
+        'change',
+        desenharGraficoCandidaturas
+      );
 
   }
 );
 
 
-/* =========================
-   EVENTOS
-========================= */
+/* =========================================================
+   API
+========================================================= */
 
-function configurarEventos() {
-
-  document
-    .getElementById(
-      'btnNovaCandidatura'
-    )
-    .addEventListener(
-      'click',
-      abrirModal
-    );
-
-
-  document
-    .getElementById(
-      'btnFecharModal'
-    )
-    .addEventListener(
-      'click',
-      fecharModal
-    );
-
-
-  document
-    .getElementById(
-      'btnCancelar'
-    )
-    .addEventListener(
-      'click',
-      fecharModal
-    );
-
-
-  document
-    .getElementById(
-      'modalCandidatura'
-    )
-    .addEventListener(
-      'click',
-      evento => {
-
-        if (
-          evento.target.id ===
-          'modalCandidatura'
-        ) {
-
-          fecharModal();
-
-        }
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      'formCandidatura'
-    )
-    .addEventListener(
-      'submit',
-      salvarCandidatura
-    );
-
-
-  document
-    .getElementById(
-      'filtroMes'
-    )
-    .addEventListener(
-      'change',
-      desenharGrafico
-    );
-
-}
-
-
-/* =========================
-   CARREGAR CANDIDATURAS
-========================= */
 
 async function carregarCandidaturas() {
 
@@ -172,61 +92,39 @@ async function carregarCandidaturas() {
 
     const resposta =
       await fetch(
-        API_URL +
-        '?acao=listar'
+        API_URL + '?acao=listar'
       );
 
-
-    if (!resposta.ok) {
-
-      throw new Error(
-        'Erro HTTP ' +
-        resposta.status
-      );
-
-    }
-
-
-    const resultado =
+    const dados =
       await resposta.json();
 
-
-    if (
-      !resultado.sucesso
-    ) {
-
+    if (!dados.sucesso) {
       throw new Error(
-        resultado.erro ||
-        'Erro ao carregar dados.'
+        dados.erro ||
+        'Erro ao carregar candidaturas.'
       );
-
     }
 
-
     candidaturas =
-      Array.isArray(
-        resultado.dados
-      )
-        ? resultado.dados
+      Array.isArray(dados.dados)
+        ? dados.dados
         : [];
-
 
     atualizarDashboard();
 
-    atualizarFiltroMes();
+    preencherFiltroMes();
 
-    renderizarTodasAsListas();
+    desenharGraficoCandidaturas();
 
-    desenharGrafico();
+    desenharGraficosAnaliticos();
+
+    renderizarLista();
 
   } catch (erro) {
 
-    console.error(
-      erro
-    );
+    console.error(erro);
 
-
-    mostrarErroGeral(
+    mostrarToast(
       'Não foi possível carregar as candidaturas.'
     );
 
@@ -235,109 +133,42 @@ async function carregarCandidaturas() {
 }
 
 
-/* =========================
-   CLASSIFICAÇÃO
-========================= */
+/*
+ * O Apps Script pode manter o POST aberto.
+ * Por isso, não aguardamos a resposta.
+ */
+function enviarPost(dados) {
 
-function estaEmAndamento(
-  candidatura
-) {
+  fetch(
+    API_URL,
+    {
+      method: 'POST',
 
-  return STATUS_ATIVOS.includes(
-    normalizarStatus(
-      candidatura.status_atual
-    )
+      mode: 'no-cors',
+
+      headers: {
+        'Content-Type':
+          'text/plain;charset=utf-8'
+      },
+
+      body:
+        JSON.stringify(dados)
+    }
+  ).catch(
+    erro =>
+      console.error(
+        'Erro no POST:',
+        erro
+      )
   );
 
 }
 
 
-function estaAprovada(
-  candidatura
-) {
-
-  return STATUS_APROVADO.includes(
-    normalizarStatus(
-      candidatura.status_atual
-    )
-  ) ||
-  candidatura.resultado ===
-    'encerrado_positivo';
-
-}
-
-
-function estaEncerrada(
-  candidatura
-) {
-
-  const status =
-    normalizarStatus(
-      candidatura.status_atual
-    );
-
-
-  if (
-    estaAprovada(candidatura)
-  ) {
-
-    return false;
-
-  }
-
-
-  if (
-    STATUS_ENCERRADOS.includes(
-      status
-    )
-  ) {
-
-    return true;
-
-  }
-
-
-  if (
-    candidatura.resultado ===
-    'sem retorno'
-  ) {
-
-    return true;
-
-  }
-
-
-  if (
-    candidatura.resultado ===
-    'encerrado_negativo'
-  ) {
-
-    return true;
-
-  }
-
-
-  return false;
-
-}
-
-
-function normalizarStatus(
-  status
-) {
-
-  return String(
-    status || ''
-  )
-    .trim()
-    .toLowerCase();
-
-}
-
-
-/* =========================
+/* =========================================================
    DASHBOARD
-========================= */
+========================================================= */
+
 
 function atualizarDashboard() {
 
@@ -347,19 +178,47 @@ function atualizarDashboard() {
 
   const andamento =
     candidaturas.filter(
-      estaEmAndamento
+      candidatura =>
+        STATUS_ANDAMENTO.includes(
+          normalizarTexto(
+            candidatura.status_atual
+          )
+        )
     ).length;
 
 
   const aprovadas =
     candidaturas.filter(
-      estaAprovada
+      candidatura =>
+        STATUS_APROVADO.includes(
+          normalizarTexto(
+            candidatura.status_atual
+          )
+        )
     ).length;
 
 
   const encerradas =
     candidaturas.filter(
-      estaEncerrada
+      candidatura => {
+
+        const status =
+          normalizarTexto(
+            candidatura.status_atual
+          );
+
+        const resultado =
+          normalizarTexto(
+            candidatura.resultado
+          );
+
+        return (
+          STATUS_ENCERRADO.includes(status) ||
+          resultado === 'sem retorno' ||
+          resultado === 'encerrado_negativo'
+        );
+
+      }
     ).length;
 
 
@@ -373,7 +232,7 @@ function atualizarDashboard() {
 
   document
     .getElementById(
-      'candidaturasAndamento'
+      'totalAndamento'
     )
     .textContent =
       andamento;
@@ -381,15 +240,7 @@ function atualizarDashboard() {
 
   document
     .getElementById(
-      'candidaturasAprovadas'
-    )
-    .textContent =
-      aprovadas;
-
-
-  document
-    .getElementById(
-      'candidaturasEncerradas'
+      'totalEncerradas'
     )
     .textContent =
       encerradas;
@@ -397,503 +248,1139 @@ function atualizarDashboard() {
 
   document
     .getElementById(
-      'contadorAtivas'
-    )
-    .textContent =
-      andamento;
-
-
-  document
-    .getElementById(
-      'contadorAprovadas'
+      'totalAprovadas'
     )
     .textContent =
       aprovadas;
 
+}
 
-  document
-    .getElementById(
-      'contadorEncerradas'
+
+/* =========================================================
+   GRÁFICO MENSAL
+========================================================= */
+
+
+function preencherFiltroMes() {
+
+  const select =
+    document.getElementById(
+      'filtroMes'
+    );
+
+  const meses =
+    new Set();
+
+
+  candidaturas.forEach(
+    candidatura => {
+
+      const data =
+        converterData(
+          candidatura.data_candidatura
+        );
+
+      if (!data) {
+        return;
+      }
+
+      const chave =
+        data.getFullYear() +
+        '-' +
+        String(
+          data.getMonth() + 1
+        ).padStart(2, '0');
+
+      meses.add(chave);
+
+    }
+  );
+
+
+  const mesesOrdenados =
+    Array.from(meses).sort();
+
+
+  const valorAtual =
+    select.value;
+
+
+  select.innerHTML = '';
+
+
+  const opcaoTodos =
+    document.createElement(
+      'option'
+    );
+
+  opcaoTodos.value = 'todos';
+
+  opcaoTodos.textContent =
+    'Todos os meses';
+
+  select.appendChild(
+    opcaoTodos
+  );
+
+
+  mesesOrdenados.forEach(
+    chave => {
+
+      const [ano, mes] =
+        chave.split('-');
+
+      const opcao =
+        document.createElement(
+          'option'
+        );
+
+      opcao.value =
+        chave;
+
+      opcao.textContent =
+        nomeMes(
+          Number(mes) - 1
+        ) +
+        ' ' +
+        ano;
+
+      select.appendChild(
+        opcao
+      );
+
+    }
+  );
+
+
+  if (
+    mesesOrdenados.includes(
+      valorAtual
     )
-    .textContent =
-      encerradas;
+  ) {
+
+    select.value =
+      valorAtual;
+
+  } else {
+
+    select.value =
+      'todos';
+
+  }
 
 }
 
 
-/* =========================
-   LISTAS
-========================= */
+function desenharGraficoCandidaturas() {
 
-function renderizarTodasAsListas() {
+  const canvas =
+    document.getElementById(
+      'graficoCandidaturas'
+    );
 
-  const ativas =
+  if (!canvas) {
+    return;
+  }
+
+
+  const filtro =
+    document.getElementById(
+      'filtroMes'
+    ).value;
+
+
+  const dadosFiltrados =
     candidaturas.filter(
-      estaEmAndamento
+      candidatura => {
+
+        const data =
+          converterData(
+            candidatura.data_candidatura
+          );
+
+        if (!data) {
+          return false;
+        }
+
+        if (
+          filtro === 'todos'
+        ) {
+          return true;
+        }
+
+        const chave =
+          data.getFullYear() +
+          '-' +
+          String(
+            data.getMonth() + 1
+          ).padStart(2, '0');
+
+        return chave === filtro;
+
+      }
     );
 
 
-  const aprovadas =
-    candidaturas.filter(
-      estaAprovada
+  const contagem = {};
+
+
+  dadosFiltrados.forEach(
+    candidatura => {
+
+      const data =
+        converterData(
+          candidatura.data_candidatura
+        );
+
+      const chave =
+        formatarDataCurta(
+          data
+        );
+
+      contagem[chave] =
+        (contagem[chave] || 0) + 1;
+
+    }
+  );
+
+
+  const labels =
+    Object.keys(
+      contagem
+    ).sort(
+      (a, b) =>
+        converterDataExibicao(a) -
+        converterDataExibicao(b)
     );
 
 
-  const encerradas =
-    candidaturas.filter(
-      estaEncerrada
+  const valores =
+    labels.map(
+      label =>
+        contagem[label]
     );
 
 
-  renderizarLista(
-    'listaAtivas',
-    ativas,
-    'Nenhuma vaga ativa no momento.'
-  );
+  const ctx =
+    canvas.getContext('2d');
 
 
-  renderizarLista(
-    'listaAprovadas',
-    aprovadas,
-    'Nenhuma candidatura aprovada ainda.'
-  );
+  if (
+    graficoCandidaturas
+  ) {
+
+    graficoCandidaturas.destroy();
+
+  }
 
 
-  renderizarLista(
-    'listaEncerradas',
-    encerradas,
-    'Nenhuma candidatura encerrada.'
-  );
+  graficoCandidaturas =
+    new Chart(
+      ctx,
+      {
+        type: 'bar',
+
+        data: {
+          labels,
+
+          datasets: [
+            {
+              label:
+                'Candidaturas',
+
+              data: valores,
+
+              borderRadius: 6,
+
+              backgroundColor:
+                '#5B5FEF',
+
+              hoverBackgroundColor:
+                '#4549D9'
+            }
+          ]
+        },
+
+        options: {
+
+          responsive: true,
+
+          maintainAspectRatio: false,
+
+          plugins: {
+
+            legend: {
+              display: false
+            },
+
+            tooltip: {
+              callbacks: {
+
+                label:
+                  context =>
+                    ` ${context.raw} candidatura(s)`
+
+              }
+            }
+
+          },
+
+          scales: {
+
+            y: {
+
+              beginAtZero: true,
+
+              ticks: {
+                precision: 0
+              },
+
+              grid: {
+                color:
+                  '#eef1f5'
+              }
+
+            },
+
+            x: {
+
+              grid: {
+                display: false
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+    );
 
 }
 
 
-function renderizarLista(
-  idElemento,
+/* =========================================================
+   GRÁFICOS DE PIZZA / ROSCA
+========================================================= */
+
+
+function desenharGraficosAnaliticos() {
+
+  const plataformas =
+    contarValores(
+      candidaturas,
+      'plataforma'
+    );
+
+  const modalidades =
+    contarValores(
+      candidaturas,
+      'modalidade'
+    );
+
+  const contratacoes =
+    contarValores(
+      candidaturas,
+      'tipo_contratacao'
+    );
+
+
+  graficoPlataformas =
+    criarGraficoRosca(
+      'graficoPlataformas',
+      plataformas,
+      'legendaPlataformas',
+      graficoPlataformas
+    );
+
+
+  graficoModalidades =
+    criarGraficoRosca(
+      'graficoModalidades',
+      modalidades,
+      'legendaModalidades',
+      graficoModalidades
+    );
+
+
+  graficoContratacoes =
+    criarGraficoRosca(
+      'graficoContratacoes',
+      contratacoes,
+      'legendaContratacoes',
+      graficoContratacoes
+    );
+
+}
+
+
+function contarValores(
   lista,
-  mensagem
+  campo
 ) {
 
-  const elemento =
+  const resultado = {};
+
+
+  lista.forEach(
+    item => {
+
+      let valor =
+        item[campo];
+
+
+      if (
+        valor === null ||
+        valor === undefined ||
+        String(valor).trim() === ''
+      ) {
+
+        valor = 'Não informado';
+
+      }
+
+
+      const chave =
+        formatarLabel(
+          valor
+        );
+
+
+      resultado[chave] =
+        (resultado[chave] || 0) + 1;
+
+    }
+  );
+
+
+  return resultado;
+
+}
+
+
+function criarGraficoRosca(
+  canvasId,
+  dados,
+  legendaId,
+  graficoAnterior
+) {
+
+  const canvas =
     document.getElementById(
-      idElemento
+      canvasId
     );
+
+
+  const legenda =
+    document.getElementById(
+      legendaId
+    );
+
+
+  if (!canvas) {
+    return null;
+  }
+
+
+  if (
+    graficoAnterior
+  ) {
+
+    graficoAnterior.destroy();
+
+  }
+
+
+  const labels =
+    Object.keys(
+      dados
+    );
+
+
+  const valores =
+    Object.values(
+      dados
+    );
+
+
+  const cores =
+    labels.map(
+      (_, indice) =>
+        CORES_GRAFICO[
+          indice %
+          CORES_GRAFICO.length
+        ]
+    );
+
+
+  const total =
+    valores.reduce(
+      (soma, valor) =>
+        soma + valor,
+      0
+    );
+
+
+  legenda.innerHTML = '';
+
+
+  labels.forEach(
+    (label, indice) => {
+
+      const percentual =
+        total === 0
+          ? 0
+          : (
+              valores[indice] /
+              total
+            ) *
+            100;
+
+
+      const item =
+        document.createElement(
+          'div'
+        );
+
+      item.className =
+        'legend-item';
+
+
+      const dot =
+        document.createElement(
+          'span'
+        );
+
+      dot.className =
+        'legend-dot';
+
+      dot.style.backgroundColor =
+        cores[indice];
+
+
+      const labelElement =
+        document.createElement(
+          'span'
+        );
+
+      labelElement.className =
+        'legend-label';
+
+      labelElement.textContent =
+        label;
+
+
+      const percentElement =
+        document.createElement(
+          'span'
+        );
+
+      percentElement.className =
+        'legend-percent';
+
+      percentElement.textContent =
+        percentual.toFixed(0) +
+        '%';
+
+
+      item.appendChild(dot);
+
+      item.appendChild(
+        labelElement
+      );
+
+      item.appendChild(
+        percentElement
+      );
+
+      legenda.appendChild(
+        item
+      );
+
+    }
+  );
+
+
+  const ctx =
+    canvas.getContext('2d');
+
+
+  return new Chart(
+    ctx,
+    {
+
+      type: 'doughnut',
+
+      data: {
+
+        labels,
+
+        datasets: [
+          {
+            data: valores,
+
+            backgroundColor:
+              cores,
+
+            borderWidth: 2,
+
+            borderColor:
+              '#ffffff'
+          }
+        ]
+
+      },
+
+      options: {
+
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        cutout: '62%',
+
+        plugins: {
+
+          legend: {
+            display: false
+          },
+
+          tooltip: {
+
+            callbacks: {
+
+              label:
+                context => {
+
+                  const valor =
+                    context.raw;
+
+                  const percentual =
+                    total === 0
+                      ? 0
+                      : (
+                          valor /
+                          total
+                        ) *
+                        100;
+
+                  return (
+                    ' ' +
+                    context.label +
+                    ': ' +
+                    valor +
+                    ' (' +
+                    percentual.toFixed(1) +
+                    '%)'
+                  );
+
+                }
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   LISTA
+========================================================= */
+
+
+function alterarFiltroLista(
+  filtro
+) {
+
+  filtroAtual =
+    filtro;
+
+
+  document
+    .querySelectorAll(
+      '.filtro-btn'
+    )
+    .forEach(
+      botao => {
+
+        botao.classList.toggle(
+          'active',
+          botao.dataset.filtro ===
+            filtro
+        );
+
+      }
+    );
+
+
+  renderizarLista();
+
+}
+
+
+function renderizarLista() {
+
+  const container =
+    document.getElementById(
+      'listaCandidaturas'
+    );
+
+
+  const listaVazia =
+    document.getElementById(
+      'listaVazia'
+    );
+
+
+  container.innerHTML = '';
+
+
+  let lista =
+    candidaturas;
+
+
+  if (
+    filtroAtual === 'andamento'
+  ) {
+
+    lista =
+      candidaturas.filter(
+        candidatura =>
+          STATUS_ANDAMENTO.includes(
+            normalizarTexto(
+              candidatura.status_atual
+            )
+          )
+      );
+
+  }
+
+
+  if (
+    filtroAtual === 'aprovadas'
+  ) {
+
+    lista =
+      candidaturas.filter(
+        candidatura =>
+          STATUS_APROVADO.includes(
+            normalizarTexto(
+              candidatura.status_atual
+            )
+          )
+      );
+
+  }
+
+
+  if (
+    filtroAtual === 'encerradas'
+  ) {
+
+    lista =
+      candidaturas.filter(
+        candidatura => {
+
+          const status =
+            normalizarTexto(
+              candidatura.status_atual
+            );
+
+          const resultado =
+            normalizarTexto(
+              candidatura.resultado
+            );
+
+          return (
+            STATUS_ENCERRADO.includes(status) ||
+            resultado === 'sem retorno' ||
+            resultado === 'encerrado_negativo'
+          );
+
+        }
+      );
+
+  }
 
 
   if (
     lista.length === 0
   ) {
 
-    elemento.innerHTML = `
-      <div class="estado-vazio">
-        ${mensagem}
-      </div>
-    `;
+    listaVazia.style.display =
+      'block';
 
     return;
 
   }
 
 
-  lista.sort(
-    compararDatas
-  );
+  listaVazia.style.display =
+    'none';
 
 
-  elemento.innerHTML =
-    lista
-      .map(
-        criarCardCandidatura
-      )
-      .join('');
+  const listaOrdenada =
+    [...lista].sort(
+      (a, b) => {
 
-}
+        const dataA =
+          converterData(
+            a.data_candidatura
+          );
 
+        const dataB =
+          converterData(
+            b.data_candidatura
+          );
 
-/* =========================
-   CARD
-========================= */
+        return (
+          (dataB || 0) -
+          (dataA || 0)
+        );
 
-function criarCardCandidatura(
-  candidatura
-) {
-
-  const statusAtual =
-    normalizarStatus(
-      candidatura.status_atual
+      }
     );
 
 
-  const options =
-    STATUS_OPTIONS
-      .map(
+  listaOrdenada.forEach(
+    candidatura => {
+
+      const row =
+        document.createElement(
+          'div'
+        );
+
+      row.className =
+        'candidatura-row';
+
+
+      const empresa =
+        document.createElement(
+          'div'
+        );
+
+      empresa.className =
+        'empresa-cell candidatura-click';
+
+      empresa.innerHTML =
+        `<span class="empresa-nome">
+          ${escaparHTML(
+            candidatura.empresa ||
+            '-'
+          )}
+        </span>`;
+
+
+      const vaga =
+        document.createElement(
+          'div'
+        );
+
+      vaga.className =
+        'vaga-cell candidatura-click';
+
+      vaga.innerHTML =
+        `<span class="vaga-nome">
+          ${escaparHTML(
+            candidatura.vaga ||
+            '-'
+          )}
+        </span>`;
+
+
+      const contratacao =
+        document.createElement(
+          'div'
+        );
+
+      contratacao.className =
+        'tipo-cell candidatura-click';
+
+      contratacao.textContent =
+        formatarLabel(
+          candidatura.tipo_contratacao
+        ) || '-';
+
+
+      const modalidade =
+        document.createElement(
+          'div'
+        );
+
+      modalidade.className =
+        'modalidade-cell candidatura-click';
+
+      modalidade.textContent =
+        formatarLabel(
+          candidatura.modalidade
+        ) || '-';
+
+
+      const statusCell =
+        document.createElement(
+          'div'
+        );
+
+      statusCell.className =
+        'status-cell';
+
+
+      const select =
+        document.createElement(
+          'select'
+        );
+
+      select.className =
+        'status-select';
+
+
+      STATUS_OPTIONS.forEach(
         status => {
 
-          const selected =
-            status ===
-            statusAtual
-              ? 'selected'
-              : '';
+          const option =
+            document.createElement(
+              'option'
+            );
 
+          option.value =
+            status;
 
-          return `
-            <option
-              value="${escaparHtml(status)}"
-              ${selected}
-            >
-              ${escaparHtml(
-                formatarStatus(status)
-              )}
-            </option>
-          `;
+          option.textContent =
+            formatarLabel(
+              status
+            );
+
+          if (
+            normalizarTexto(
+              candidatura.status_atual
+            ) ===
+            normalizarTexto(status)
+          ) {
+
+            option.selected =
+              true;
+
+          }
+
+          select.appendChild(
+            option
+          );
 
         }
-      )
-      .join('');
+      );
 
 
-  const link =
-    candidatura.link_vaga
-      ? `
-        <a
-          class="candidatura-link"
-          href="${escaparHtml(
-            candidatura.link_vaga
-          )}"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Ver vaga ↗
-        </a>
-      `
-      : '';
+      select.addEventListener(
+        'click',
+        evento =>
+          evento.stopPropagation()
+      );
 
 
-  const salario =
-    formatarSalario(
-      candidatura
-    );
+      select.addEventListener(
+        'change',
+        evento => {
+
+          evento.stopPropagation();
+
+          atualizarStatus(
+            candidatura,
+            select.value
+          );
+
+        }
+      );
 
 
-  return `
-    <article
-      class="candidatura-card"
-      data-id="${escaparHtml(
-        candidatura.id_candidatura
-      )}"
-    >
-
-      <div class="candidatura-topo">
-
-        <div>
-
-          <div class="candidatura-vaga">
-            ${escaparHtml(
-              candidatura.vaga || '-'
-            )}
-          </div>
-
-          <div class="candidatura-empresa">
-            ${escaparHtml(
-              candidatura.empresa || '-'
-            )}
-          </div>
-
-        </div>
+      statusCell.appendChild(
+        select
+      );
 
 
-        <select
-          class="status-select"
-          data-id="${escaparHtml(
-            candidatura.id_candidatura
-          )}"
-          aria-label="Alterar status"
-        >
+      const data =
+        document.createElement(
+          'div'
+        );
 
-          ${options}
+      data.className =
+        'data-cell candidatura-click';
 
-        </select>
-
-      </div>
-
-
-      <div class="candidatura-info">
-
-        <div class="info-item">
-
-          <span class="info-label">
-            Candidatura
-          </span>
-
-          <span class="info-value">
-            ${formatarData(
-              candidatura.data_candidatura
-            )}
-          </span>
-
-        </div>
+      data.textContent =
+        formatarData(
+          candidatura.data_candidatura
+        );
 
 
-        <div class="info-item">
+      row.appendChild(
+        empresa
+      );
 
-          <span class="info-label">
-            Modalidade
-          </span>
+      row.appendChild(
+        vaga
+      );
 
-          <span class="info-value">
-            ${escaparHtml(
-              candidatura.modalidade || '-'
-            )}
-          </span>
+      row.appendChild(
+        contratacao
+      );
 
-        </div>
+      row.appendChild(
+        modalidade
+      );
 
+      row.appendChild(
+        statusCell
+      );
 
-        <div class="info-item">
-
-          <span class="info-label">
-            Contratação
-          </span>
-
-          <span class="info-value">
-            ${escaparHtml(
-              candidatura.tipo_contratacao || '-'
-            )}
-          </span>
-
-        </div>
+      row.appendChild(
+        data
+      );
 
 
-        <div class="info-item">
+      [
+        empresa,
+        vaga,
+        contratacao,
+        modalidade,
+        data
+      ].forEach(
+        elemento => {
 
-          <span class="info-label">
-            Plataforma
-          </span>
+          elemento.addEventListener(
+            'click',
+            () =>
+              abrirDetalhes(
+                candidatura
+              )
+          );
 
-          <span class="info-value">
-            ${escaparHtml(
-              candidatura.plataforma || '-'
-            )}
-          </span>
-
-        </div>
-
-
-        <div class="info-item">
-
-          <span class="info-label">
-            Localização
-          </span>
-
-          <span class="info-value">
-            ${escaparHtml(
-              candidatura.localizacao || '-'
-            )}
-          </span>
-
-        </div>
+        }
+      );
 
 
-        <div class="info-item">
+      container.appendChild(
+        row
+      );
 
-          <span class="info-label">
-            Salário
-          </span>
+    }
+  );
 
-          <span class="info-value">
-            ${escaparHtml(
-              salario
-            )}
-          </span>
-
-        </div>
-
-      </div>
-
-
-      <div class="candidatura-footer">
-
-        <span class="candidatura-data">
-          ${escaparHtml(
-            candidatura.id_candidatura || ''
-          )}
-        </span>
-
-        ${link}
-
-      </div>
-
-    </article>
-  `;
-
-  /*
-   * O listener do select é adicionado
-   * após a renderização dos cards.
-   */
 }
 
 
-/* =========================
-   LISTENER DOS STATUS
-========================= */
-
-document.addEventListener(
-  'change',
-  evento => {
-
-    if (
-      !evento.target.classList.contains(
-        'status-select'
-      )
-    ) {
-
-      return;
-
-    }
+/* =========================================================
+   ATUALIZAÇÃO DE STATUS
+========================================================= */
 
 
-    const id =
-      evento.target.dataset.id;
-
-
-    const novoStatus =
-      evento.target.value;
-
-
-    alterarStatus(
-      id,
-      novoStatus,
-      evento.target
-    );
-
-  }
-);
-
-
-/* =========================
-   ALTERAR STATUS
-========================= */
-
-async function alterarStatus(
-  id,
-  novoStatus,
-  select
+function atualizarStatus(
+  candidatura,
+  novoStatus
 ) {
-
-  if (
-    atualizandoStatus
-  ) {
-
-    return;
-
-  }
-
-
-  const candidatura =
-    candidaturas.find(
-      item =>
-        String(
-          item.id_candidatura
-        ) ===
-        String(id)
-    );
-
-
-  if (!candidatura) {
-
-    return;
-
-  }
-
 
   const statusAnterior =
     candidatura.status_atual;
 
 
-  if (
-    normalizarStatus(
-      statusAnterior
-    ) ===
-    normalizarStatus(
-      novoStatus
-    )
-  ) {
-
-    return;
-
-  }
+  candidatura.status_atual =
+    novoStatus;
 
 
-  atualizandoStatus = true;
+  enviarPost({
 
-  select.disabled = true;
+    acao:
+      'atualizar',
 
+    id_candidatura:
+      candidatura.id_candidatura,
 
-  try {
+    status_atual:
+      novoStatus,
 
-    await enviarPostSemAguardarResposta({
+    observacao_historico:
+      'Status atualizado pelo Job Tracker'
 
-      acao:
-        'atualizar',
-
-      id_candidatura:
-        id,
-
-      status_atual:
-        novoStatus,
-
-      observacao_historico:
-        'Status alterado pelo frontend'
-
-    });
+  });
 
 
-    candidatura.status_atual =
-      novoStatus;
+  mostrarToast(
+    'Status atualizado.'
+  );
 
 
-    /*
-     * Pequeno intervalo para garantir
-     * que o Apps Script processe a gravação
-     * antes da nova leitura.
-     */
-    await esperar(
-      1200
-    );
+  atualizarDashboard();
+
+  desenharGraficosAnaliticos();
+
+  renderizarLista();
 
 
-    await carregarCandidaturas();
-
-
-  } catch (erro) {
-
-    console.error(
-      erro
-    );
-
-
-    select.value =
-      statusAnterior;
-
-
-    alert(
-      'Não foi possível atualizar o status.'
-    );
-
-  } finally {
-
-    atualizandoStatus = false;
-
-    select.disabled = false;
-
-  }
+  /*
+   * Atualiza novamente os dados após
+   * o Apps Script processar o POST.
+   */
+  setTimeout(
+    carregarCandidaturas,
+    1200
+  );
 
 }
 
 
-/* =========================
-   NOVA CANDIDATURA
-========================= */
+/* =========================================================
+   MODAL NOVA CANDIDATURA
+========================================================= */
+
+
+function abrirModalNovaCandidatura() {
+
+  const modal =
+    document.getElementById(
+      'modalCandidatura'
+    );
+
+
+  document
+    .getElementById(
+      'formCandidatura'
+    )
+    .reset();
+
+
+  document
+    .getElementById(
+      'data_candidatura'
+    )
+    .value =
+      obterDataHoje();
+
+
+  modal.classList.add(
+    'open'
+  );
+
+}
+
+
+function fecharModal() {
+
+  document
+    .getElementById(
+      'modalCandidatura'
+    )
+    .classList.remove(
+      'open'
+    );
+
+}
+
 
 async function salvarCandidatura(
   evento
@@ -902,25 +1389,25 @@ async function salvarCandidatura(
   evento.preventDefault();
 
 
-  if (
-    salvando
-  ) {
-
+  if (salvando) {
     return;
-
   }
 
 
-  const formulario =
+  salvando = true;
+
+
+  const botao =
     document.getElementById(
-      'formCandidatura'
+      'btnSalvar'
     );
 
 
-  const dadosFormulario =
-    new FormData(
-      formulario
-    );
+  botao.disabled =
+    true;
+
+  botao.textContent =
+    'Salvando...';
 
 
   const dados = {
@@ -929,59 +1416,59 @@ async function salvarCandidatura(
       'criar',
 
     data_candidatura:
-      dadosFormulario.get(
+      document.getElementById(
         'data_candidatura'
-      ),
+      ).value,
 
     empresa:
-      dadosFormulario.get(
+      document.getElementById(
         'empresa'
-      ),
+      ).value.trim(),
 
     vaga:
-      dadosFormulario.get(
+      document.getElementById(
         'vaga'
-      ),
+      ).value.trim(),
 
     salario_min:
-      dadosFormulario.get(
+      document.getElementById(
         'salario_min'
-      ),
+      ).value,
 
     salario_max:
-      dadosFormulario.get(
+      document.getElementById(
         'salario_max'
-      ),
+      ).value,
 
     salario_informado:
-      dadosFormulario.get(
+      document.getElementById(
         'salario_informado'
-      ),
+      ).value.trim(),
 
     tipo_contratacao:
-      dadosFormulario.get(
+      document.getElementById(
         'tipo_contratacao'
-      ),
+      ).value,
 
     modalidade:
-      dadosFormulario.get(
+      document.getElementById(
         'modalidade'
-      ),
+      ).value,
 
     localizacao:
-      dadosFormulario.get(
+      document.getElementById(
         'localizacao'
-      ),
+      ).value.trim(),
 
     plataforma:
-      dadosFormulario.get(
+      document.getElementById(
         'plataforma'
-      ),
+      ).value,
 
     link_vaga:
-      dadosFormulario.get(
+      document.getElementById(
         'link_vaga'
-      ),
+      ).value.trim(),
 
     status_atual:
       'candidatura enviada',
@@ -993,825 +1480,405 @@ async function salvarCandidatura(
       'em andamento',
 
     observacoes:
-      dadosFormulario.get(
+      document.getElementById(
         'observacoes'
-      )
+      ).value.trim()
 
   };
 
 
-  salvando = true;
-
-
-  const botaoSalvar =
-    document.getElementById(
-      'btnSalvar'
-    );
-
-
-  const botaoCancelar =
-    document.getElementById(
-      'btnCancelar'
-    );
-
-
-  botaoSalvar.disabled = true;
-
-  botaoCancelar.disabled = true;
-
-  botaoSalvar.textContent =
-    'Salvando...';
-
-
-  mostrarMensagemFormulario(
-    'Salvando candidatura...'
+  /*
+   * IMPORTANTE:
+   *
+   * Não usamos await aqui.
+   *
+   * O Web App do Apps Script pode deixar
+   * a resposta POST pendente.
+   *
+   * A requisição é enviada e o modal
+   * é fechado imediatamente.
+   */
+  enviarPost(
+    dados
   );
 
 
-  try {
-
-    /*
-     * Utilizamos no-cors porque o Web App
-     * do Apps Script pode manter a requisição
-     * aberta por causa do redirecionamento.
-     *
-     * A gravação já foi validada no backend.
-     * Depois do envio, fazemos uma nova leitura
-     * da API para atualizar a tela.
-     */
-
-    await enviarPostSemAguardarResposta(
-      dados
-    );
+  fecharModal();
 
 
-    await esperar(
-      1500
-    );
-
-
-    fecharModal();
-
-    formulario.reset();
-
-    esconderMensagemFormulario();
-
-
-    await carregarCandidaturas();
-
-
-  } catch (erro) {
-
-    console.error(
-      'Erro ao salvar candidatura:',
-      erro
-    );
-
-
-    mostrarMensagemFormulario(
-      'Não foi possível enviar a candidatura.'
-    );
-
-
-  } finally {
-
-    salvando = false;
-
-    botaoSalvar.disabled = false;
-
-    botaoCancelar.disabled = false;
-
-    botaoSalvar.textContent =
-      'Salvar candidatura';
-
-  }
-
-}
-
-
-/* =========================
-   POST
-========================= */
-
-function enviarPostSemAguardarResposta(
-  dados
-) {
-
-  return fetch(
-    API_URL,
-    {
-      method: 'POST',
-
-      mode: 'no-cors',
-
-      headers: {
-        'Content-Type':
-          'text/plain;charset=utf-8'
-      },
-
-      body:
-        JSON.stringify(
-          dados
-        )
-    }
-  );
-
-}
-
-
-/* =========================
-   FILTRO DE MÊS
-========================= */
-
-function atualizarFiltroMes() {
-
-  const select =
-    document.getElementById(
-      'filtroMes'
-    );
-
-
-  const meses =
-    obterMesesDisponiveis();
-
-
-  const valorAtual =
-    select.value;
-
-
-  select.innerHTML = '';
-
-
-  if (
-    meses.length === 0
-  ) {
-
-    const option =
-      document.createElement(
-        'option'
-      );
-
-    option.value = '';
-
-    option.textContent =
-      'Nenhum mês disponível';
-
-    select.appendChild(
-      option
-    );
-
-    return;
-
-  }
-
-
-  meses.forEach(
-    mes => {
-
-      const option =
-        document.createElement(
-          'option'
-        );
-
-      option.value =
-        mes.valor;
-
-      option.textContent =
-        mes.label;
-
-      select.appendChild(
-        option
-      );
-
-    }
-  );
-
-
-  if (
-    meses.some(
-      mes =>
-        mes.valor ===
-        valorAtual
+  document
+    .getElementById(
+      'formCandidatura'
     )
-  ) {
-
-    select.value =
-      valorAtual;
-
-  } else {
-
-    select.value =
-      meses[0].valor;
-
-  }
-
-}
+    .reset();
 
 
-function obterMesesDisponiveis() {
-
-  const mapa =
-    new Map();
-
-
-  candidaturas.forEach(
-    candidatura => {
-
-      const chave =
-        obterMesCandidatura(
-          candidatura
-        );
-
-
-      if (!chave) {
-        return;
-      }
-
-
-      if (
-        !mapa.has(chave)
-      ) {
-
-        mapa.set(
-          chave,
-          formatarMes(
-            chave
-          )
-        );
-
-      }
-
-    }
+  mostrarToast(
+    'Candidatura salva com sucesso.'
   );
 
 
-  return Array
-    .from(
-      mapa.entries()
-    )
-    .sort(
-      (a, b) =>
-        b[0].localeCompare(
-          a[0]
-        )
-    )
-    .map(
-      ([valor, label]) => ({
-        valor,
-        label
-      })
-    );
+  salvando =
+    false;
 
-}
+  botao.disabled =
+    false;
 
-
-/* =========================
-   GRÁFICO
-========================= */
-
-function desenharGrafico() {
-
-  const canvas =
-    document.getElementById(
-      'graficoCandidaturas'
-    );
-
-
-  const wrapper =
-    canvas.parentElement;
-
-
-  const largura =
-    wrapper.clientWidth;
-
-
-  const altura =
-    wrapper.clientHeight;
-
-
-  if (
-    largura <= 0 ||
-    altura <= 0
-  ) {
-
-    return;
-
-  }
-
-
-  const proporcao =
-    window.devicePixelRatio || 1;
-
-
-  canvas.width =
-    largura * proporcao;
-
-  canvas.height =
-    altura * proporcao;
-
-
-  const contexto =
-    canvas.getContext(
-      '2d'
-    );
-
-
-  contexto.scale(
-    proporcao,
-    proporcao
-  );
-
-
-  contexto.clearRect(
-    0,
-    0,
-    largura,
-    altura
-  );
-
-
-  const mesSelecionado =
-    document.getElementById(
-      'filtroMes'
-    ).value;
-
-
-  if (!mesSelecionado) {
-
-    desenharMensagemGrafico(
-      contexto,
-      largura,
-      altura,
-      'Nenhum dado disponível'
-    );
-
-    return;
-
-  }
-
-
-  const ano =
-    Number(
-      mesSelecionado
-        .split('-')[0]
-    );
-
-
-  const mes =
-    Number(
-      mesSelecionado
-        .split('-')[1]
-    );
-
-
-  const diasNoMes =
-    new Date(
-      ano,
-      mes,
-      0
-    ).getDate();
-
-
-  const valores =
-    Array(
-      diasNoMes
-    ).fill(0);
-
-
-  candidaturas.forEach(
-    candidatura => {
-
-      const data =
-        extrairDataLocal(
-          candidatura.data_candidatura
-        );
-
-
-      if (!data) {
-        return;
-      }
-
-
-      if (
-        data.ano === ano &&
-        data.mes === mes
-      ) {
-
-        valores[
-          data.dia - 1
-        ]++;
-
-      }
-
-    }
-  );
-
-
-  const maiorValor =
-    Math.max(
-      ...valores,
-      1
-    );
-
-
-  const margemEsquerda =
-    45;
-
-  const margemDireita =
-    18;
-
-  const margemTopo =
-    20;
-
-  const margemInferior =
-    45;
-
-
-  const areaLargura =
-    largura -
-    margemEsquerda -
-    margemDireita;
-
-
-  const areaAltura =
-    altura -
-    margemTopo -
-    margemInferior;
-
-
-  const contexto2 =
-    contexto;
-
-
-  contexto2.font =
-    '12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-
-
-  contexto2.fillStyle =
-    '#6b7280';
-
-
-  contexto2.strokeStyle =
-    '#e5e7eb';
-
-
-  contexto2.lineWidth =
-    1;
+  botao.textContent =
+    'Salvar candidatura';
 
 
   /*
-   * Linhas horizontais.
+   * Dá tempo para o Apps Script gravar
+   * antes de atualizar a tela.
    */
-
-  const linhas =
-    4;
-
-
-  for (
-    let i = 0;
-    i <= linhas;
-    i++
-  ) {
-
-    const y =
-      margemTopo +
-      areaAltura -
-      (
-        areaAltura *
-        i /
-        linhas
-      );
-
-
-    contexto2.beginPath();
-
-    contexto2.moveTo(
-      margemEsquerda,
-      y
-    );
-
-    contexto2.lineTo(
-      largura -
-        margemDireita,
-      y
-    );
-
-    contexto2.stroke();
-
-
-    const valor =
-      Math.round(
-        maiorValor *
-        i /
-        linhas
-      );
-
-
-    contexto2.fillText(
-      String(valor),
-      10,
-      y + 4
-    );
-
-  }
-
-
-  const larguraColuna =
-    areaLargura /
-    diasNoMes;
-
-
-  const larguraBarra =
-    Math.max(
-      3,
-      larguraColuna * 0.58
-    );
-
-
-  valores.forEach(
-    (valor, indice) => {
-
-      const alturaBarra =
-        valor === 0
-          ? 0
-          :
-          (
-            valor /
-            maiorValor
-          ) *
-          areaAltura;
-
-
-      const x =
-        margemEsquerda +
-        (
-          indice *
-          larguraColuna
-        ) +
-        (
-          larguraColuna -
-          larguraBarra
-        ) / 2;
-
-
-      const y =
-        margemTopo +
-        areaAltura -
-        alturaBarra;
-
-
-      if (
-        valor > 0
-      ) {
-
-        contexto2.fillStyle =
-          '#111827';
-
-
-        contexto2.fillRect(
-          x,
-          y,
-          larguraBarra,
-          alturaBarra
-        );
-
-
-        contexto2.fillStyle =
-          '#374151';
-
-
-        contexto2.textAlign =
-          'center';
-
-
-        contexto2.fillText(
-          String(valor),
-          x +
-            larguraBarra / 2,
-          y - 6
-        );
-
-      }
-
-
-      /*
-       * Mostra os dias sem poluir
-       * o gráfico.
-       */
-      if (
-        diasNoMes <= 16 ||
-        indice % 2 === 0
-      ) {
-
-        contexto2.fillStyle =
-          '#9ca3af';
-
-
-        contexto2.fillText(
-          String(
-            indice + 1
-          ),
-          x +
-            larguraBarra / 2,
-          altura -
-            15
-        );
-
-      }
-
-    }
+  setTimeout(
+    carregarCandidaturas,
+    1200
   );
 
 }
 
 
-function desenharMensagemGrafico(
-  contexto,
-  largura,
-  altura,
-  mensagem
+/* =========================================================
+   MODAL DE DETALHES
+========================================================= */
+
+
+function abrirDetalhes(
+  candidatura
 ) {
 
-  contexto.fillStyle =
-    '#9ca3af';
+  document
+    .getElementById(
+      'detalheTitulo'
+    )
+    .textContent =
+      candidatura.vaga ||
+      'Candidatura';
 
 
-  contexto.font =
-    '14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  document
+    .getElementById(
+      'detalheEmpresa'
+    )
+    .textContent =
+      candidatura.empresa ||
+      '';
 
 
-  contexto.textAlign =
-    'center';
-
-
-  contexto.fillText(
-    mensagem,
-    largura / 2,
-    altura / 2
-  );
-
-}
-
-
-/* =========================
-   REDIMENSIONAMENTO
-========================= */
-
-window.addEventListener(
-  'resize',
-  () => {
-
-    desenharGrafico();
-
-  }
-);
-
-
-/* =========================
-   MODAL
-========================= */
-
-function abrirModal() {
-
-  const modal =
+  const container =
     document.getElementById(
-      'modalCandidatura'
+      'conteudoDetalhes'
     );
 
 
-  modal.classList.remove(
-    'hidden'
+  container.innerHTML = '';
+
+
+  adicionarDetalhe(
+    container,
+    'Empresa',
+    candidatura.empresa
   );
 
 
-  const data =
-    document.getElementById(
-      'data_candidatura'
-    );
+  adicionarDetalhe(
+    container,
+    'Vaga',
+    candidatura.vaga
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Data da candidatura',
+    formatarData(
+      candidatura.data_candidatura
+    )
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Status',
+    formatarLabel(
+      candidatura.status_atual
+    )
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Tipo de contratação',
+    formatarLabel(
+      candidatura.tipo_contratacao
+    )
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Modalidade',
+    formatarLabel(
+      candidatura.modalidade
+    )
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Localização',
+    candidatura.localizacao
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Plataforma',
+    formatarLabel(
+      candidatura.plataforma
+    )
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Salário mínimo',
+    formatarSalario(
+      candidatura.salario_min
+    )
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Salário máximo',
+    formatarSalario(
+      candidatura.salario_max
+    )
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Salário informado',
+    candidatura.salario_informado
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Teve retorno',
+    formatarLabel(
+      candidatura.teve_retorno
+    )
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Resultado',
+    formatarLabel(
+      candidatura.resultado
+    )
+  );
+
+
+  adicionarDetalhe(
+    container,
+    'Dias em processo',
+    candidatura.dias_em_processo
+  );
 
 
   if (
-    !data.value
+    candidatura.link_vaga
   ) {
 
-    const hoje =
-      new Date();
+    adicionarDetalheLink(
+      container,
+      'Link da vaga',
+      candidatura.link_vaga
+    );
 
+  } else {
 
-    const ano =
-      hoje.getFullYear();
-
-
-    const mes =
-      String(
-        hoje.getMonth() + 1
-      ).padStart(
-        2,
-        '0'
-      );
-
-
-    const dia =
-      String(
-        hoje.getDate()
-      ).padStart(
-        2,
-        '0'
-      );
-
-
-    data.value =
-      `${ano}-${mes}-${dia}`;
+    adicionarDetalhe(
+      container,
+      'Link da vaga',
+      'Não informado'
+    );
 
   }
+
+
+  adicionarDetalhe(
+    container,
+    'Observações',
+    candidatura.observacoes ||
+      'Nenhuma observação.',
+    true
+  );
+
+
+  document
+    .getElementById(
+      'modalDetalhes'
+    )
+    .classList.add(
+      'open'
+    );
 
 }
 
 
-function fecharModal() {
+function adicionarDetalhe(
+  container,
+  label,
+  valor,
+  full = false
+) {
+
+  const item =
+    document.createElement(
+      'div'
+    );
+
+
+  item.className =
+    full
+      ? 'detalhe-item full'
+      : 'detalhe-item';
+
+
+  item.innerHTML =
+    `
+      <span class="detalhe-label">
+        ${escaparHTML(label)}
+      </span>
+
+      <span class="detalhe-valor">
+        ${escaparHTML(
+          valor === null ||
+          valor === undefined ||
+          String(valor).trim() === ''
+            ? 'Não informado'
+            : String(valor)
+        )}
+      </span>
+    `;
+
+
+  container.appendChild(
+    item
+  );
+
+}
+
+
+function adicionarDetalheLink(
+  container,
+  label,
+  url
+) {
+
+  const item =
+    document.createElement(
+      'div'
+    );
+
+
+  item.className =
+    'detalhe-item full';
+
+
+  item.innerHTML =
+    `
+      <span class="detalhe-label">
+        ${escaparHTML(label)}
+      </span>
+
+      <span class="detalhe-valor">
+        <a
+          href="${escaparAtributo(url)}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Abrir vaga
+        </a>
+      </span>
+    `;
+
+
+  container.appendChild(
+    item
+  );
+
+}
+
+
+function fecharModalDetalhes() {
+
+  document
+    .getElementById(
+      'modalDetalhes'
+    )
+    .classList.remove(
+      'open'
+    );
+
+}
+
+
+/* =========================================================
+   FORMATAÇÕES
+========================================================= */
+
+
+function normalizarTexto(
+  valor
+) {
+
+  return String(
+    valor || ''
+  )
+    .trim()
+    .toLowerCase();
+
+}
+
+
+function formatarLabel(
+  valor
+) {
 
   if (
-    salvando
+    valor === null ||
+    valor === undefined ||
+    String(valor).trim() === ''
   ) {
 
-    return;
+    return '';
 
   }
 
 
-  const modal =
-    document.getElementById(
-      'modalCandidatura'
+  return String(valor)
+    .replaceAll(
+      '_',
+      ' '
+    )
+    .replace(
+      /\b\w/g,
+      letra =>
+        letra.toUpperCase()
     );
 
-
-  modal.classList.add(
-    'hidden'
-  );
-
 }
 
 
-/* =========================
-   MENSAGENS
-========================= */
-
-function mostrarMensagemFormulario(
-  mensagem
-) {
-
-  const elemento =
-    document.getElementById(
-      'mensagemFormulario'
-    );
-
-
-  elemento.textContent =
-    mensagem;
-
-
-  elemento.classList.add(
-    'visible'
-  );
-
-}
-
-
-function esconderMensagemFormulario() {
-
-  const elemento =
-    document.getElementById(
-      'mensagemFormulario'
-    );
-
-
-  elemento.textContent =
-    '';
-
-
-  elemento.classList.remove(
-    'visible'
-  );
-
-}
-
-
-function mostrarErroGeral(
-  mensagem
-) {
-
-  console.error(
-    mensagem
-  );
-
-}
-
-
-/* =========================
-   FORMATAÇÃO DE DATA
-========================= */
-
-function extrairDataLocal(
+function converterData(
   valor
 ) {
 
@@ -1820,54 +1887,38 @@ function extrairDataLocal(
   }
 
 
+  if (
+    valor instanceof Date
+  ) {
+
+    return valor;
+
+  }
+
+
   const texto =
-    String(valor);
+    String(valor).trim();
 
 
-  /*
-   * Quando a API retorna
-   * "2026-09-21T03:00:00.000Z",
-   * usamos diretamente a parte
-   * YYYY-MM-DD para não sofrer
-   * alteração de dia pelo fuso.
-   */
-
-  const correspondencia =
+  const dataISO =
     texto.match(
       /^(\d{4})-(\d{2})-(\d{2})/
     );
 
 
-  if (
-    correspondencia
-  ) {
+  if (dataISO) {
 
-    return {
-
-      ano:
-        Number(
-          correspondencia[1]
-        ),
-
-      mes:
-        Number(
-          correspondencia[2]
-        ),
-
-      dia:
-        Number(
-          correspondencia[3]
-        )
-
-    };
+    return new Date(
+      Number(dataISO[1]),
+      Number(dataISO[2]) - 1,
+      Number(dataISO[3])
+    );
 
   }
 
 
   const data =
-    new Date(
-      valor
-    );
+    new Date(texto);
 
 
   if (
@@ -1881,18 +1932,7 @@ function extrairDataLocal(
   }
 
 
-  return {
-
-    ano:
-      data.getFullYear(),
-
-    mes:
-      data.getMonth() + 1,
-
-    dia:
-      data.getDate()
-
-  };
+  return data;
 
 }
 
@@ -1902,7 +1942,7 @@ function formatarData(
 ) {
 
   const data =
-    extrairDataLocal(
+    converterData(
       valor
     );
 
@@ -1913,351 +1953,225 @@ function formatarData(
 
 
   return (
-    String(data.dia).padStart(
-      2,
-      '0'
-    ) +
+    String(
+      data.getDate()
+    ).padStart(2, '0') +
     '/' +
-    String(data.mes).padStart(
-      2,
-      '0'
-    ) +
+    String(
+      data.getMonth() + 1
+    ).padStart(2, '0') +
     '/' +
-    data.ano
+    data.getFullYear()
   );
 
 }
 
 
-function obterMesCandidatura(
-  candidatura
+function formatarDataCurta(
+  data
 ) {
 
-  const data =
-    extrairDataLocal(
-      candidatura.data_candidatura
-    );
-
-
   if (!data) {
-    return null;
+    return '';
   }
 
 
   return (
-    data.ano +
-    '-' +
     String(
-      data.mes
-    ).padStart(
-      2,
-      '0'
-    )
+      data.getDate()
+    ).padStart(2, '0') +
+    '/' +
+    String(
+      data.getMonth() + 1
+    ).padStart(2, '0')
   );
 
 }
 
 
-function formatarMes(
-  valor
+function converterDataExibicao(
+  texto
 ) {
 
   const partes =
-    valor.split('-');
+    texto.split('/');
 
 
-  const ano =
-    Number(
-      partes[0]
-    );
-
-
-  const mes =
-    Number(
-      partes[1]
-    );
-
-
-  const nomes =
-    [
-      'Janeiro',
-      'Fevereiro',
-      'Março',
-      'Abril',
-      'Maio',
-      'Junho',
-      'Julho',
-      'Agosto',
-      'Setembro',
-      'Outubro',
-      'Novembro',
-      'Dezembro'
-    ];
-
-
-  return (
-    nomes[mes - 1] +
-    ' ' +
-    ano
+  return new Date(
+    2026,
+    Number(partes[1]) - 1,
+    Number(partes[0])
   );
 
 }
 
 
-/* =========================
-   FORMATAÇÃO DE STATUS
-========================= */
-
-function formatarStatus(
-  status
+function nomeMes(
+  indice
 ) {
 
-  const mapa = {
-
-    'candidatura enviada':
-      'Candidatura enviada',
-
-    'em análise':
-      'Em análise',
-
-    'entrevista rh':
-      'Entrevista RH',
-
-    'entrevista técnica':
-      'Entrevista técnica',
-
-    'teste técnico':
-      'Teste técnico',
-
-    'entrevista gestor':
-      'Entrevista gestor',
-
-    'proposta':
-      'Proposta',
-
-    'aprovado':
-      'Aprovado',
-
-    'negado':
-      'Negado',
-
-    'desisti':
-      'Desisti'
-
-  };
+  const meses = [
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro'
+  ];
 
 
-  return (
-    mapa[status] ||
-    status
-  );
+  return meses[indice] || '';
 
 }
 
-
-/* =========================
-   SALÁRIO
-========================= */
 
 function formatarSalario(
-  candidatura
-) {
-
-  if (
-    candidatura.salario_informado
-  ) {
-
-    return String(
-      candidatura.salario_informado
-    );
-
-  }
-
-
-  const minimo =
-    Number(
-      candidatura.salario_min
-    );
-
-
-  const maximo =
-    Number(
-      candidatura.salario_max
-    );
-
-
-  if (
-    minimo &&
-    maximo
-  ) {
-
-    return (
-      formatarMoeda(minimo) +
-      ' a ' +
-      formatarMoeda(maximo)
-    );
-
-  }
-
-
-  if (
-    minimo
-  ) {
-
-    return formatarMoeda(
-      minimo
-    );
-
-  }
-
-
-  if (
-    maximo
-  ) {
-
-    return formatarMoeda(
-      maximo
-    );
-
-  }
-
-
-  return '-';
-
-}
-
-
-function formatarMoeda(
   valor
 ) {
 
-  return Number(
-    valor
-  ).toLocaleString(
+  if (
+    valor === null ||
+    valor === undefined ||
+    String(valor).trim() === ''
+  ) {
+
+    return 'Não informado';
+
+  }
+
+
+  const numero =
+    Number(valor);
+
+
+  if (
+    Number.isNaN(numero)
+  ) {
+
+    return String(valor);
+
+  }
+
+
+  return numero.toLocaleString(
     'pt-BR',
     {
       style: 'currency',
-      currency: 'BRL',
-      maximumFractionDigits: 0
+      currency: 'BRL'
     }
   );
 
 }
 
 
-/* =========================
-   ORDENAÇÃO
-========================= */
+function obterDataHoje() {
 
-function compararDatas(
-  a,
-  b
-) {
-
-  const dataA =
-    extrairDataLocal(
-      a.data_candidatura
-    );
+  const hoje =
+    new Date();
 
 
-  const dataB =
-    extrairDataLocal(
-      b.data_candidatura
-    );
-
-
-  if (!dataA) {
-    return 1;
-  }
-
-
-  if (!dataB) {
-    return -1;
-  }
-
-
-  const valorA =
-    Number(
-      dataA.ano +
-      String(dataA.mes).padStart(
-        2,
-        '0'
-      ) +
-      String(dataA.dia).padStart(
-        2,
-        '0'
-      )
-    );
-
-
-  const valorB =
-    Number(
-      dataB.ano +
-      String(dataB.mes).padStart(
-        2,
-        '0'
-      ) +
-      String(dataB.dia).padStart(
-        2,
-        '0'
-      )
-    );
-
-
-  return valorB - valorA;
+  return (
+    hoje.getFullYear() +
+    '-' +
+    String(
+      hoje.getMonth() + 1
+    ).padStart(2, '0') +
+    '-' +
+    String(
+      hoje.getDate()
+    ).padStart(2, '0')
+  );
 
 }
 
 
-/* =========================
-   SEGURANÇA
-========================= */
+/* =========================================================
+   SEGURANÇA / UTILITÁRIOS
+========================================================= */
 
-function escaparHtml(
+
+function escaparHTML(
   valor
 ) {
 
   return String(
     valor ?? ''
   )
-    .replace(
-      /&/g,
+    .replaceAll(
+      '&',
       '&amp;'
     )
-    .replace(
-      /</g,
+    .replaceAll(
+      '<',
       '&lt;'
     )
-    .replace(
-      />/g,
+    .replaceAll(
+      '>',
       '&gt;'
     )
-    .replace(
-      /"/g,
+    .replaceAll(
+      '"',
       '&quot;'
     )
-    .replace(
-      /'/g,
+    .replaceAll(
+      "'",
       '&#039;'
     );
 
 }
 
 
-/* =========================
-   UTILITÁRIO
-========================= */
-
-function esperar(
-  milissegundos
+function escaparAtributo(
+  valor
 ) {
 
-  return new Promise(
-    resolve =>
-      setTimeout(
-        resolve,
-        milissegundos
-      )
+  return escaparHTML(
+    valor
   );
+
+}
+
+
+function mostrarToast(
+  mensagem
+) {
+
+  const toast =
+    document.getElementById(
+      'toast'
+    );
+
+
+  toast.textContent =
+    mensagem;
+
+
+  toast.classList.add(
+    'show'
+  );
+
+
+  clearTimeout(
+    window.toastTimeout
+  );
+
+
+  window.toastTimeout =
+    setTimeout(
+      () => {
+
+        toast.classList.remove(
+          'show'
+        );
+
+      },
+      2500
+    );
 
 }
