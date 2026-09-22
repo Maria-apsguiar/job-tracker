@@ -81,7 +81,9 @@ document.addEventListener(
 );
 
 
-/* API */
+/* =========================================================
+   API
+========================================================= */
 
 
 async function carregarCandidaturas() {
@@ -131,6 +133,10 @@ async function carregarCandidaturas() {
 }
 
 
+/*
+ * O Apps Script pode manter o POST aberto.
+ * Por isso, não aguardamos a resposta.
+ */
 function enviarPost(dados) {
 
   fetch(
@@ -159,7 +165,9 @@ function enviarPost(dados) {
 }
 
 
-/* DASHBOARD */
+/* =========================================================
+   DASHBOARD
+========================================================= */
 
 
 function atualizarDashboard() {
@@ -248,7 +256,9 @@ function atualizarDashboard() {
 }
 
 
-/* GRÁFICO MENSAL */
+/* =========================================================
+   GRÁFICO MENSAL
+========================================================= */
 
 
 function preencherFiltroMes() {
@@ -303,11 +313,10 @@ function preencherFiltroMes() {
       'option'
     );
 
-  opcaoTodos.value =
-    'todos';
+  opcaoTodos.value = 'todos';
 
   opcaoTodos.textContent =
-    'Mês atual';
+    'Todos os meses';
 
   select.appendChild(
     opcaoTodos
@@ -374,80 +383,48 @@ function desenharGraficoCandidaturas() {
   }
 
 
-  const select =
+  const filtro =
     document.getElementById(
       'filtroMes'
+    ).value;
+
+
+  const dadosFiltrados =
+    candidaturas.filter(
+      candidatura => {
+
+        const data =
+          converterData(
+            candidatura.data_candidatura
+          );
+
+        if (!data) {
+          return false;
+        }
+
+        if (
+          filtro === 'todos'
+        ) {
+          return true;
+        }
+
+        const chave =
+          data.getFullYear() +
+          '-' +
+          String(
+            data.getMonth() + 1
+          ).padStart(2, '0');
+
+        return chave === filtro;
+
+      }
     );
 
 
-  if (!select) {
-    return;
-  }
+  const contagem = {};
 
 
-  const filtro =
-    select.value;
-
-
-  let ano;
-  let mes;
-
-
-  if (
-    filtro === 'todos'
-  ) {
-
-    const hoje =
-      new Date();
-
-    ano =
-      hoje.getFullYear();
-
-    mes =
-      hoje.getMonth();
-
-  } else {
-
-    const partes =
-      filtro.split('-');
-
-    ano =
-      Number(partes[0]);
-
-    mes =
-      Number(partes[1]) - 1;
-
-  }
-
-
-  const quantidadeDias =
-    new Date(
-      ano,
-      mes + 1,
-      0
-    ).getDate();
-
-
-  const contagem =
-    {};
-
-
-  for (
-    let dia = 1;
-    dia <= quantidadeDias;
-    dia++
-  ) {
-
-    const chave =
-      String(dia).padStart(2, '0');
-
-    contagem[chave] =
-      0;
-
-  }
-
-
-  candidaturas.forEach(
+  dadosFiltrados.forEach(
     candidatura => {
 
       const data =
@@ -455,64 +432,32 @@ function desenharGraficoCandidaturas() {
           candidatura.data_candidatura
         );
 
+      const chave =
+        formatarDataCurta(
+          data
+        );
 
-      if (!data) {
-        return;
-      }
-
-
-      if (
-        data.getFullYear() !== ano ||
-        data.getMonth() !== mes
-      ) {
-
-        return;
-
-      }
-
-
-      const dia =
-        String(
-          data.getDate()
-        ).padStart(2, '0');
-
-
-      contagem[dia] =
-        (contagem[dia] || 0) + 1;
+      contagem[chave] =
+        (contagem[chave] || 0) + 1;
 
     }
   );
 
 
   const labels =
-    Array.from(
-      {
-        length:
-          quantidadeDias
-      },
-      (_, indice) =>
-        String(
-          indice + 1
-        ).padStart(2, '0') +
-        '/' +
-        String(
-          mes + 1
-        ).padStart(2, '0')
+    Object.keys(
+      contagem
+    ).sort(
+      (a, b) =>
+        converterDataExibicao(a) -
+        converterDataExibicao(b)
     );
 
 
   const valores =
-    Array.from(
-      {
-        length:
-          quantidadeDias
-      },
-      (_, indice) =>
-        contagem[
-          String(
-            indice + 1
-          ).padStart(2, '0')
-        ] || 0
+    labels.map(
+      label =>
+        contagem[label]
     );
 
 
@@ -543,8 +488,7 @@ function desenharGraficoCandidaturas() {
               label:
                 'Candidaturas',
 
-              data:
-                valores,
+              data: valores,
 
               borderRadius: 6,
 
@@ -570,7 +514,6 @@ function desenharGraficoCandidaturas() {
             },
 
             tooltip: {
-
               callbacks: {
 
                 label:
@@ -578,7 +521,6 @@ function desenharGraficoCandidaturas() {
                     ` ${context.raw} candidatura(s)`
 
               }
-
             }
 
           },
@@ -604,14 +546,6 @@ function desenharGraficoCandidaturas() {
 
               grid: {
                 display: false
-              },
-
-              ticks: {
-
-                autoSkip: true,
-
-                maxTicksLimit: 15
-
               }
 
             }
@@ -626,7 +560,9 @@ function desenharGraficoCandidaturas() {
 }
 
 
-/* GRÁFICOS DE ROSCA */
+/* =========================================================
+   GRÁFICOS DE PIZZA / ROSCA
+========================================================= */
 
 
 function desenharGraficosAnaliticos() {
@@ -955,7 +891,9 @@ function criarGraficoRosca(
 }
 
 
-/* LISTA */
+/* =========================================================
+   LISTA
+========================================================= */
 
 
 function alterarFiltroLista(
@@ -1337,13 +1275,19 @@ function renderizarLista() {
 }
 
 
-/* ATUALIZAÇÃO DE STATUS */
+/* =========================================================
+   ATUALIZAÇÃO DE STATUS
+========================================================= */
 
 
 function atualizarStatus(
   candidatura,
   novoStatus
 ) {
+
+  const statusAnterior =
+    candidatura.status_atual;
+
 
   candidatura.status_atual =
     novoStatus;
@@ -1378,6 +1322,10 @@ function atualizarStatus(
   renderizarLista();
 
 
+  /*
+   * Atualiza novamente os dados após
+   * o Apps Script processar o POST.
+   */
   setTimeout(
     carregarCandidaturas,
     1200
@@ -1386,7 +1334,9 @@ function atualizarStatus(
 }
 
 
-/* MODAL NOVA CANDIDATURA */
+/* =========================================================
+   MODAL NOVA CANDIDATURA
+========================================================= */
 
 
 function abrirModalNovaCandidatura() {
@@ -1537,6 +1487,17 @@ async function salvarCandidatura(
   };
 
 
+  /*
+   * IMPORTANTE:
+   *
+   * Não usamos await aqui.
+   *
+   * O Web App do Apps Script pode deixar
+   * a resposta POST pendente.
+   *
+   * A requisição é enviada e o modal
+   * é fechado imediatamente.
+   */
   enviarPost(
     dados
   );
@@ -1567,6 +1528,10 @@ async function salvarCandidatura(
     'Salvar candidatura';
 
 
+  /*
+   * Dá tempo para o Apps Script gravar
+   * antes de atualizar a tela.
+   */
   setTimeout(
     carregarCandidaturas,
     1200
@@ -1575,7 +1540,9 @@ async function salvarCandidatura(
 }
 
 
-/* MODAL DE DETALHES */
+/* =========================================================
+   MODAL DE DETALHES
+========================================================= */
 
 
 function abrirDetalhes(
@@ -1864,7 +1831,9 @@ function fecharModalDetalhes() {
 }
 
 
-/* FORMATAÇÕES */
+/* =========================================================
+   FORMATAÇÕES
+========================================================= */
 
 
 function normalizarTexto(
@@ -1998,6 +1967,45 @@ function formatarData(
 }
 
 
+function formatarDataCurta(
+  data
+) {
+
+  if (!data) {
+    return '';
+  }
+
+
+  return (
+    String(
+      data.getDate()
+    ).padStart(2, '0') +
+    '/' +
+    String(
+      data.getMonth() + 1
+    ).padStart(2, '0')
+  );
+
+}
+
+
+function converterDataExibicao(
+  texto
+) {
+
+  const partes =
+    texto.split('/');
+
+
+  return new Date(
+    2026,
+    Number(partes[1]) - 1,
+    Number(partes[0])
+  );
+
+}
+
+
 function nomeMes(
   indice
 ) {
@@ -2083,7 +2091,9 @@ function obterDataHoje() {
 }
 
 
-/* SEGURANÇA / UTILITÁRIOS */
+/* =========================================================
+   SEGURANÇA / UTILITÁRIOS
+========================================================= */
 
 
 function escaparHTML(
