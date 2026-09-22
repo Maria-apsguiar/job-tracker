@@ -1,3 +1,4 @@
+```css
 * {
   box-sizing: border-box;
   margin: 0;
@@ -747,6 +748,17 @@ button {
 }
 
 
+.footer {
+  text-align: center;
+
+  padding: 8px 20px 28px;
+
+  font-size: 11px;
+
+  color: #9aa1ae;
+}
+
+
 @media (max-width: 1050px) {
 
   .analytics-grid {
@@ -874,3 +886,4 @@ button {
   }
 
 }
+```
