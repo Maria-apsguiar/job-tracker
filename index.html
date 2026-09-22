@@ -2,54 +2,31 @@
 <html lang="pt-BR">
 
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Job Tracker</title>
 
-  <link
-    rel="stylesheet"
-    href="style.css"
-  >
+  <link rel="stylesheet" href="style.css">
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 
 <body>
 
-  <!-- =========================
-       HEADER
-  ========================== -->
+  <header class="topbar">
 
-  <header class="header">
-
-    <div class="header-content">
-
-      <div class="brand">
-
-        <h1>Job Tracker</h1>
-
-        <p>
-          Sistema de gestão de candidaturas
-        </p>
-
-      </div>
-
-
-      <button
-        id="btnNovaCandidatura"
-        class="btn-primary"
-        type="button"
-      >
-        + Nova candidatura
-      </button>
-
+    <div class="brand">
+      <h1>Job Tracker</h1>
+      <span>Sistema de Gestão de Candidaturas</span>
     </div>
+
+    <button
+      class="btn-primary"
+      onclick="abrirModalNovaCandidatura()"
+    >
+      + Nova candidatura
+    </button>
 
   </header>
 
@@ -61,123 +38,68 @@
          DASHBOARD
     ========================== -->
 
-    <section class="dashboard">
+    <section class="dashboard-grid">
 
       <div class="kpi-card">
-
-        <div class="kpi-label">
+        <span class="kpi-label">
           Total de candidaturas
-        </div>
+        </span>
 
-        <div
+        <strong
           id="totalCandidaturas"
           class="kpi-value"
         >
           0
-        </div>
-
+        </strong>
       </div>
 
 
       <div class="kpi-card">
-
-        <div class="kpi-label">
+        <span class="kpi-label">
           Em andamento
-        </div>
+        </span>
 
-        <div
-          id="candidaturasAndamento"
+        <strong
+          id="totalAndamento"
           class="kpi-value"
         >
           0
-        </div>
-
+        </strong>
       </div>
 
 
       <div class="kpi-card">
-
-        <div class="kpi-label">
+        <span class="kpi-label">
           Encerradas / desistências
-        </div>
+        </span>
 
-        <div
-          id="candidaturasEncerradas"
+        <strong
+          id="totalEncerradas"
           class="kpi-value"
         >
           0
-        </div>
-
+        </strong>
       </div>
 
 
       <div class="kpi-card">
-
-        <div class="kpi-label">
+        <span class="kpi-label">
           Aprovadas
-        </div>
+        </span>
 
-        <div
-          id="candidaturasAprovadas"
+        <strong
+          id="totalAprovadas"
           class="kpi-value"
         >
           0
-        </div>
-
+        </strong>
       </div>
 
     </section>
 
 
     <!-- =========================
-         GRÁFICO
-    ========================== -->
-
-    <section class="panel chart-panel">
-
-      <div class="panel-header">
-
-        <div>
-
-          <h2>
-            Candidaturas por dia
-          </h2>
-
-          <p>
-            Acompanhe a quantidade de candidaturas realizadas em cada dia
-          </p>
-
-        </div>
-
-
-        <div class="month-filter">
-
-          <label for="filtroMes">
-            Mês
-          </label>
-
-          <select
-            id="filtroMes"
-          ></select>
-
-        </div>
-
-      </div>
-
-
-      <div class="chart-wrapper">
-
-        <canvas
-          id="graficoCandidaturas"
-        ></canvas>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         CANDIDATURAS ATIVAS
+         GRÁFICO POR DIA
     ========================== -->
 
     <section class="panel">
@@ -185,38 +107,129 @@
       <div class="panel-header">
 
         <div>
-
-          <h2>
-            Vagas ativas
-          </h2>
+          <h2>Candidaturas por dia</h2>
 
           <p>
-            Processos seletivos que ainda estão em andamento
+            Distribuição das candidaturas realizadas no período
           </p>
-
         </div>
 
-
-        <span
-          id="contadorAtivas"
-          class="section-count"
+        <select
+          id="filtroMes"
+          class="select-control"
         >
-          0
-        </span>
+        </select>
 
       </div>
 
-
-      <div
-        id="listaAtivas"
-        class="candidaturas-grid"
-      ></div>
+      <div class="chart-container">
+        <canvas id="graficoCandidaturas"></canvas>
+      </div>
 
     </section>
 
 
     <!-- =========================
-         APROVADAS
+         ANÁLISES
+    ========================== -->
+
+    <section class="analytics-grid">
+
+
+      <div class="panel analytics-card">
+
+        <div class="panel-header compact">
+
+          <div>
+            <h2>Origem das candidaturas</h2>
+
+            <p>
+              Onde as oportunidades foram encontradas
+            </p>
+          </div>
+
+        </div>
+
+        <div class="donut-wrapper">
+
+          <div class="donut-canvas">
+            <canvas id="graficoPlataformas"></canvas>
+          </div>
+
+          <div
+            id="legendaPlataformas"
+            class="chart-legend"
+          ></div>
+
+        </div>
+
+      </div>
+
+
+      <div class="panel analytics-card">
+
+        <div class="panel-header compact">
+
+          <div>
+            <h2>Modalidade</h2>
+
+            <p>
+              Distribuição por formato de trabalho
+            </p>
+          </div>
+
+        </div>
+
+        <div class="donut-wrapper">
+
+          <div class="donut-canvas">
+            <canvas id="graficoModalidades"></canvas>
+          </div>
+
+          <div
+            id="legendaModalidades"
+            class="chart-legend"
+          ></div>
+
+        </div>
+
+      </div>
+
+
+      <div class="panel analytics-card">
+
+        <div class="panel-header compact">
+
+          <div>
+            <h2>Tipo de contratação</h2>
+
+            <p>
+              Perfil das oportunidades
+            </p>
+          </div>
+
+        </div>
+
+        <div class="donut-wrapper">
+
+          <div class="donut-canvas">
+            <canvas id="graficoContratacoes"></canvas>
+          </div>
+
+          <div
+            id="legendaContratacoes"
+            class="chart-legend"
+          ></div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         LISTA DE CANDIDATURAS
     ========================== -->
 
     <section class="panel">
@@ -224,74 +237,78 @@
       <div class="panel-header">
 
         <div>
+          <h2>Candidaturas</h2>
 
-          <h2>
+          <p>
+            Clique em uma candidatura para visualizar os detalhes
+          </p>
+        </div>
+
+        <div class="filtros-lista">
+
+          <button
+            class="filtro-btn active"
+            data-filtro="todas"
+            onclick="alterarFiltroLista('todas')"
+          >
+            Todas
+          </button>
+
+          <button
+            class="filtro-btn"
+            data-filtro="andamento"
+            onclick="alterarFiltroLista('andamento')"
+          >
+            Em andamento
+          </button>
+
+          <button
+            class="filtro-btn"
+            data-filtro="aprovadas"
+            onclick="alterarFiltroLista('aprovadas')"
+          >
             Aprovadas
-          </h2>
+          </button>
 
-          <p>
-            Processos em que você recebeu aprovação
-          </p>
+          <button
+            class="filtro-btn"
+            data-filtro="encerradas"
+            onclick="alterarFiltroLista('encerradas')"
+          >
+            Encerradas
+          </button>
 
         </div>
 
+      </div>
 
-        <span
-          id="contadorAprovadas"
-          class="section-count"
-        >
-          0
-        </span>
+
+      <div class="lista-cabecalho">
+
+        <span>Empresa</span>
+        <span>Vaga</span>
+        <span>Contratação</span>
+        <span>Modalidade</span>
+        <span>Status</span>
+        <span>Data</span>
 
       </div>
 
 
       <div
-        id="listaAprovadas"
-        class="candidaturas-grid"
+        id="listaCandidaturas"
+        class="lista-candidaturas"
       ></div>
-
-    </section>
-
-
-    <!-- =========================
-         ENCERRADAS
-    ========================== -->
-
-    <section class="panel">
-
-      <div class="panel-header">
-
-        <div>
-
-          <h2>
-            Encerradas / desistências
-          </h2>
-
-          <p>
-            Processos finalizados, negados, sem retorno ou desistidos
-          </p>
-
-        </div>
-
-
-        <span
-          id="contadorEncerradas"
-          class="section-count"
-        >
-          0
-        </span>
-
-      </div>
 
 
       <div
-        id="listaEncerradas"
-        class="candidaturas-grid"
-      ></div>
+        id="listaVazia"
+        class="lista-vazia"
+      >
+        Nenhuma candidatura encontrada.
+      </div>
 
     </section>
-
 
   </main>
 
@@ -302,7 +319,7 @@
 
   <div
     id="modalCandidatura"
-    class="modal-overlay hidden"
+    class="modal-overlay"
   >
 
     <div class="modal">
@@ -310,22 +327,16 @@
       <div class="modal-header">
 
         <div>
-
-          <h2>
-            Nova candidatura
-          </h2>
+          <h2>Nova candidatura</h2>
 
           <p>
             Cadastre uma nova oportunidade
           </p>
-
         </div>
 
-
         <button
-          id="btnFecharModal"
-          class="btn-close"
-          type="button"
+          class="modal-close"
+          onclick="fecharModal()"
         >
           ×
         </button>
@@ -335,69 +346,53 @@
 
       <form
         id="formCandidatura"
+        onsubmit="salvarCandidatura(event)"
       >
 
         <div class="form-grid">
 
 
           <div class="form-group">
-
-            <label for="empresa">
-              Empresa
-            </label>
+            <label>Empresa *</label>
 
             <input
+              type="text"
               id="empresa"
-              name="empresa"
-              type="text"
               required
             >
-
           </div>
 
 
           <div class="form-group">
-
-            <label for="vaga">
-              Vaga
-            </label>
+            <label>Vaga *</label>
 
             <input
+              type="text"
               id="vaga"
-              name="vaga"
-              type="text"
               required
             >
-
           </div>
 
 
           <div class="form-group">
-
-            <label for="data_candidatura">
-              Data da candidatura
-            </label>
+            <label>Data da candidatura *</label>
 
             <input
-              id="data_candidatura"
-              name="data_candidatura"
               type="date"
+              id="data_candidatura"
               required
             >
-
           </div>
 
 
           <div class="form-group">
+            <label>Tipo de contratação</label>
 
-            <label for="tipo_contratacao">
-              Tipo de contratação
-            </label>
+            <select id="tipo_contratacao">
 
-            <select
-              id="tipo_contratacao"
-              name="tipo_contratacao"
-            >
+              <option value="">
+                Selecione
+              </option>
 
               <option value="clt">
                 CLT
@@ -429,15 +424,13 @@
 
 
           <div class="form-group">
+            <label>Modalidade</label>
 
-            <label for="modalidade">
-              Modalidade
-            </label>
+            <select id="modalidade">
 
-            <select
-              id="modalidade"
-              name="modalidade"
-            >
+              <option value="">
+                Selecione
+              </option>
 
               <option value="remoto">
                 Remoto
@@ -457,30 +450,23 @@
 
 
           <div class="form-group">
-
-            <label for="localizacao">
-              Localização
-            </label>
+            <label>Localização</label>
 
             <input
-              id="localizacao"
-              name="localizacao"
               type="text"
+              id="localizacao"
             >
-
           </div>
 
 
           <div class="form-group">
+            <label>Plataforma</label>
 
-            <label for="plataforma">
-              Plataforma
-            </label>
+            <select id="plataforma">
 
-            <select
-              id="plataforma"
-              name="plataforma"
-            >
+              <option value="">
+                Selecione
+              </option>
 
               <option value="linkedin">
                 LinkedIn
@@ -523,104 +509,70 @@
           </div>
 
 
-          <div class="form-group">
-
-            <label for="link_vaga">
-              Link da vaga
-            </label>
+          <div class="form-group form-full">
+            <label>Link da vaga</label>
 
             <input
-              id="link_vaga"
-              name="link_vaga"
               type="url"
+              id="link_vaga"
               placeholder="https://..."
             >
-
           </div>
 
 
           <div class="form-group">
-
-            <label for="salario_min">
-              Salário mínimo
-            </label>
+            <label>Salário mínimo</label>
 
             <input
+              type="number"
               id="salario_min"
-              name="salario_min"
-              type="number"
-              min="0"
               step="0.01"
             >
-
           </div>
 
 
           <div class="form-group">
-
-            <label for="salario_max">
-              Salário máximo
-            </label>
+            <label>Salário máximo</label>
 
             <input
+              type="number"
               id="salario_max"
-              name="salario_max"
-              type="number"
-              min="0"
               step="0.01"
             >
-
           </div>
 
 
-          <div class="form-group">
-
-            <label for="salario_informado">
-              Salário informado
-            </label>
+          <div class="form-group form-full">
+            <label>Salário informado</label>
 
             <input
-              id="salario_informado"
-              name="salario_informado"
               type="text"
+              id="salario_informado"
             >
+          </div>
 
+
+          <div class="form-group form-full">
+            <label>Observações</label>
+
+            <textarea
+              id="observacoes"
+              rows="4"
+            ></textarea>
           </div>
 
         </div>
 
 
-        <div class="form-group">
-
-          <label for="observacoes">
-            Observações
-          </label>
-
-          <textarea
-            id="observacoes"
-            name="observacoes"
-            rows="4"
-          ></textarea>
-
-        </div>
-
-
-        <div
-          id="mensagemFormulario"
-          class="form-message"
-        ></div>
-
-
-        <div class="modal-actions">
+        <div class="modal-footer">
 
           <button
             type="button"
-            id="btnCancelar"
             class="btn-secondary"
+            onclick="fecharModal()"
           >
             Cancelar
           </button>
-
 
           <button
             type="submit"
@@ -637,6 +589,65 @@
     </div>
 
   </div>
+
+
+  <!-- =========================
+       MODAL DETALHES
+  ========================== -->
+
+  <div
+    id="modalDetalhes"
+    class="modal-overlay"
+  >
+
+    <div class="modal modal-detalhes">
+
+      <div class="modal-header">
+
+        <div>
+          <h2 id="detalheTitulo">
+            Candidatura
+          </h2>
+
+          <p id="detalheEmpresa"></p>
+        </div>
+
+        <button
+          class="modal-close"
+          onclick="fecharModalDetalhes()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div
+        id="conteudoDetalhes"
+        class="detalhes-grid"
+      ></div>
+
+
+      <div class="detalhes-footer">
+
+        <button
+          class="btn-secondary"
+          onclick="fecharModalDetalhes()"
+        >
+          Fechar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="toast"
+    class="toast"
+  ></div>
 
 
   <script src="script.js"></script>
