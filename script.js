@@ -1,3 +1,4 @@
+```javascript
 const API_URL =
   'https://script.google.com/macros/s/AKfycbxxW-c2KDqG-vm7ej5CLZ8d6AHsT4GUxgiCrpwDYLie-9yNkM4NuNqx1FqKSS7A5_6N/exec';
 
@@ -313,7 +314,8 @@ function preencherFiltroMes() {
       'option'
     );
 
-  opcaoTodos.value = 'todos';
+  opcaoTodos.value =
+    'todos';
 
   opcaoTodos.textContent =
     'Todos os meses';
@@ -383,48 +385,106 @@ function desenharGraficoCandidaturas() {
   }
 
 
-  const filtro =
+  const select =
     document.getElementById(
       'filtroMes'
-    ).value;
-
-
-  const dadosFiltrados =
-    candidaturas.filter(
-      candidatura => {
-
-        const data =
-          converterData(
-            candidatura.data_candidatura
-          );
-
-        if (!data) {
-          return false;
-        }
-
-        if (
-          filtro === 'todos'
-        ) {
-          return true;
-        }
-
-        const chave =
-          data.getFullYear() +
-          '-' +
-          String(
-            data.getMonth() + 1
-          ).padStart(2, '0');
-
-        return chave === filtro;
-
-      }
     );
 
 
-  const contagem = {};
+  if (!select) {
+    return;
+  }
 
 
-  dadosFiltrados.forEach(
+  const filtro =
+    select.value;
+
+
+  /*
+   * Quando "Todos os meses" estiver selecionado,
+   * usamos o mês atual para manter o gráfico
+   * com uma escala diária coerente.
+   *
+   * Quando um mês específico estiver selecionado,
+   * usamos exatamente aquele mês.
+   */
+  let ano;
+  let mes;
+
+
+  if (
+    filtro === 'todos'
+  ) {
+
+    const hoje =
+      new Date();
+
+    ano =
+      hoje.getFullYear();
+
+    mes =
+      hoje.getMonth();
+
+  } else {
+
+    const partes =
+      filtro.split('-');
+
+    ano =
+      Number(partes[0]);
+
+    mes =
+      Number(partes[1]) - 1;
+
+  }
+
+
+  /*
+   * Descobre quantos dias existem no mês.
+   *
+   * Exemplo:
+   * Setembro = 30
+   * Outubro = 31
+   * Fevereiro = 28 ou 29
+   */
+  const quantidadeDias =
+    new Date(
+      ano,
+      mes + 1,
+      0
+    ).getDate();
+
+
+  /*
+   * Cria a contagem de candidaturas
+   * para cada dia do mês.
+   *
+   * Todos os dias começam com 0.
+   */
+  const contagem =
+    {};
+
+
+  for (
+    let dia = 1;
+    dia <= quantidadeDias;
+    dia++
+  ) {
+
+    const chave =
+      String(dia).padStart(2, '0');
+
+    contagem[chave] =
+      0;
+
+  }
+
+
+  /*
+   * Conta somente as candidaturas
+   * pertencentes ao mês selecionado.
+   */
+  candidaturas.forEach(
     candidatura => {
 
       const data =
@@ -432,32 +492,67 @@ function desenharGraficoCandidaturas() {
           candidatura.data_candidatura
         );
 
-      const chave =
-        formatarDataCurta(
-          data
-        );
 
-      contagem[chave] =
-        (contagem[chave] || 0) + 1;
+      if (!data) {
+        return;
+      }
+
+
+      if (
+        data.getFullYear() !== ano ||
+        data.getMonth() !== mes
+      ) {
+
+        return;
+
+      }
+
+
+      const dia =
+        String(
+          data.getDate()
+        ).padStart(2, '0');
+
+
+      contagem[dia] =
+        (contagem[dia] || 0) + 1;
 
     }
   );
 
 
+  /*
+   * Cria os labels de todos os dias.
+   */
   const labels =
-    Object.keys(
-      contagem
-    ).sort(
-      (a, b) =>
-        converterDataExibicao(a) -
-        converterDataExibicao(b)
+    Array.from(
+      {
+        length:
+          quantidadeDias
+      },
+      (_, indice) =>
+        String(
+          indice + 1
+        ).padStart(2, '0') +
+        '/' +
+        String(
+          mes + 1
+        ).padStart(2, '0')
     );
 
 
   const valores =
-    labels.map(
-      label =>
-        contagem[label]
+    Array.from(
+      {
+        length:
+          quantidadeDias
+      },
+      (_, indice) =>
+        contagem[
+          String(
+            indice + 1
+          ).padStart(2, '0')
+        ] || 0
     );
 
 
@@ -488,7 +583,8 @@ function desenharGraficoCandidaturas() {
               label:
                 'Candidaturas',
 
-              data: valores,
+              data:
+                valores,
 
               borderRadius: 6,
 
@@ -514,6 +610,7 @@ function desenharGraficoCandidaturas() {
             },
 
             tooltip: {
+
               callbacks: {
 
                 label:
@@ -521,6 +618,7 @@ function desenharGraficoCandidaturas() {
                     ` ${context.raw} candidatura(s)`
 
               }
+
             }
 
           },
@@ -546,6 +644,14 @@ function desenharGraficoCandidaturas() {
 
               grid: {
                 display: false
+              },
+
+              ticks: {
+
+                autoSkip: true,
+
+                maxTicksLimit: 15
+
               }
 
             }
@@ -1285,10 +1391,6 @@ function atualizarStatus(
   novoStatus
 ) {
 
-  const statusAnterior =
-    candidatura.status_atual;
-
-
   candidatura.status_atual =
     novoStatus;
 
@@ -1967,45 +2069,6 @@ function formatarData(
 }
 
 
-function formatarDataCurta(
-  data
-) {
-
-  if (!data) {
-    return '';
-  }
-
-
-  return (
-    String(
-      data.getDate()
-    ).padStart(2, '0') +
-    '/' +
-    String(
-      data.getMonth() + 1
-    ).padStart(2, '0')
-  );
-
-}
-
-
-function converterDataExibicao(
-  texto
-) {
-
-  const partes =
-    texto.split('/');
-
-
-  return new Date(
-    2026,
-    Number(partes[1]) - 1,
-    Number(partes[0])
-  );
-
-}
-
-
 function nomeMes(
   indice
 ) {
@@ -2175,3 +2238,4 @@ function mostrarToast(
     );
 
 }
+```
