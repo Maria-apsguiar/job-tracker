@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -15,24 +16,35 @@
     rel="stylesheet"
     href="style.css"
   >
+
 </head>
 
+
 <body>
+
+  <!-- =========================
+       HEADER
+  ========================== -->
 
   <header class="header">
 
     <div class="header-content">
 
-      <div>
+      <div class="brand">
+
         <h1>Job Tracker</h1>
+
         <p>
           Sistema de gestão de candidaturas
         </p>
+
       </div>
+
 
       <button
         id="btnNovaCandidatura"
         class="btn-primary"
+        type="button"
       >
         + Nova candidatura
       </button>
@@ -44,168 +56,249 @@
 
   <main class="container">
 
-    <!-- DASHBOARD -->
+
+    <!-- =========================
+         DASHBOARD
+    ========================== -->
 
     <section class="dashboard">
 
       <div class="kpi-card">
 
-        <span class="kpi-label">
-          Total
-        </span>
+        <div class="kpi-label">
+          Total de candidaturas
+        </div>
 
-        <strong
+        <div
           id="totalCandidaturas"
           class="kpi-value"
         >
           0
-        </strong>
+        </div>
 
       </div>
 
 
       <div class="kpi-card">
 
-        <span class="kpi-label">
+        <div class="kpi-label">
           Em andamento
-        </span>
+        </div>
 
-        <strong
+        <div
           id="candidaturasAndamento"
           class="kpi-value"
         >
           0
-        </strong>
+        </div>
 
       </div>
 
 
       <div class="kpi-card">
 
-        <span class="kpi-label">
-          Com retorno
-        </span>
+        <div class="kpi-label">
+          Encerradas / desistências
+        </div>
 
-        <strong
-          id="candidaturasComRetorno"
+        <div
+          id="candidaturasEncerradas"
           class="kpi-value"
         >
           0
-        </strong>
+        </div>
 
       </div>
 
 
       <div class="kpi-card">
 
-        <span class="kpi-label">
+        <div class="kpi-label">
           Aprovadas
-        </span>
+        </div>
 
-        <strong
+        <div
           id="candidaturasAprovadas"
           class="kpi-value"
         >
           0
-        </strong>
+        </div>
 
       </div>
 
     </section>
 
 
-    <!-- CANDIDATURAS -->
+    <!-- =========================
+         GRÁFICO
+    ========================== -->
 
-    <section class="section">
+    <section class="panel chart-panel">
 
-      <div class="section-header">
+      <div class="panel-header">
 
         <div>
 
-          <h2>Candidaturas</h2>
+          <h2>
+            Candidaturas por dia
+          </h2>
 
           <p>
-            Acompanhe seus processos seletivos
+            Acompanhe a quantidade de candidaturas realizadas em cada dia
           </p>
 
         </div>
 
 
-        <div class="filters">
+        <div class="month-filter">
+
+          <label for="filtroMes">
+            Mês
+          </label>
 
           <select
-            id="filtroStatus"
-            aria-label="Filtrar por status"
-          >
-
-            <option value="">
-              Todos os status
-            </option>
-
-            <option value="candidatura enviada">
-              Candidatura enviada
-            </option>
-
-            <option value="em análise">
-              Em análise
-            </option>
-
-            <option value="entrevista rh">
-              Entrevista RH
-            </option>
-
-            <option value="entrevista técnica">
-              Entrevista técnica
-            </option>
-
-            <option value="teste técnico">
-              Teste técnico
-            </option>
-
-            <option value="entrevista gestor">
-              Entrevista gestor
-            </option>
-
-            <option value="proposta">
-              Proposta
-            </option>
-
-            <option value="aprovado">
-              Aprovado
-            </option>
-
-            <option value="negado">
-              Negado
-            </option>
-
-            <option value="desisti">
-              Desisti
-            </option>
-
-          </select>
+            id="filtroMes"
+          ></select>
 
         </div>
 
       </div>
 
 
-      <div
-        id="mensagem"
-        class="mensagem"
-      ></div>
+      <div class="chart-wrapper">
+
+        <canvas
+          id="graficoCandidaturas"
+        ></canvas>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         CANDIDATURAS ATIVAS
+    ========================== -->
+
+    <section class="panel">
+
+      <div class="panel-header">
+
+        <div>
+
+          <h2>
+            Vagas ativas
+          </h2>
+
+          <p>
+            Processos seletivos que ainda estão em andamento
+          </p>
+
+        </div>
+
+
+        <span
+          id="contadorAtivas"
+          class="section-count"
+        >
+          0
+        </span>
+
+      </div>
 
 
       <div
-        id="listaCandidaturas"
+        id="listaAtivas"
         class="candidaturas-grid"
       ></div>
 
     </section>
 
+
+    <!-- =========================
+         APROVADAS
+    ========================== -->
+
+    <section class="panel">
+
+      <div class="panel-header">
+
+        <div>
+
+          <h2>
+            Aprovadas
+          </h2>
+
+          <p>
+            Processos em que você recebeu aprovação
+          </p>
+
+        </div>
+
+
+        <span
+          id="contadorAprovadas"
+          class="section-count"
+        >
+          0
+        </span>
+
+      </div>
+
+
+      <div
+        id="listaAprovadas"
+        class="candidaturas-grid"
+      ></div>
+
+    </section>
+
+
+    <!-- =========================
+         ENCERRADAS
+    ========================== -->
+
+    <section class="panel">
+
+      <div class="panel-header">
+
+        <div>
+
+          <h2>
+            Encerradas / desistências
+          </h2>
+
+          <p>
+            Processos finalizados, negados, sem retorno ou desistidos
+          </p>
+
+        </div>
+
+
+        <span
+          id="contadorEncerradas"
+          class="section-count"
+        >
+          0
+        </span>
+
+      </div>
+
+
+      <div
+        id="listaEncerradas"
+        class="candidaturas-grid"
+      ></div>
+
+    </section>
+
+
   </main>
 
 
-  <!-- MODAL NOVA CANDIDATURA -->
+  <!-- =========================
+       MODAL NOVA CANDIDATURA
+  ========================== -->
 
   <div
     id="modalCandidatura"
@@ -218,13 +311,16 @@
 
         <div>
 
-          <h2>Nova candidatura</h2>
+          <h2>
+            Nova candidatura
+          </h2>
 
           <p>
             Cadastre uma nova oportunidade
           </p>
 
         </div>
+
 
         <button
           id="btnFecharModal"
@@ -237,9 +333,12 @@
       </div>
 
 
-      <form id="formCandidatura">
+      <form
+        id="formCandidatura"
+      >
 
         <div class="form-grid">
+
 
           <div class="form-group">
 
@@ -300,17 +399,26 @@
               name="tipo_contratacao"
             >
 
-              <option value="clt">CLT</option>
-              <option value="pj">PJ</option>
+              <option value="clt">
+                CLT
+              </option>
+
+              <option value="pj">
+                PJ
+              </option>
+
               <option value="temporário">
                 Temporário
               </option>
+
               <option value="estágio">
                 Estágio
               </option>
+
               <option value="freelancer">
                 Freelancer
               </option>
+
               <option value="outro">
                 Outro
               </option>
@@ -497,6 +605,12 @@
         </div>
 
 
+        <div
+          id="mensagemFormulario"
+          class="form-message"
+        ></div>
+
+
         <div class="modal-actions">
 
           <button
@@ -507,8 +621,10 @@
             Cancelar
           </button>
 
+
           <button
             type="submit"
+            id="btnSalvar"
             class="btn-primary"
           >
             Salvar candidatura
