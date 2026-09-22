@@ -33,7 +33,9 @@ button {
 }
 
 
-/* HEADER */
+/* =========================
+   HEADER
+========================= */
 
 .header {
   background: #ffffff;
@@ -60,8 +62,8 @@ button {
 }
 
 
-.header h1 {
-  font-size: 26px;
+.brand h1 {
+  font-size: 27px;
 
   font-weight: 700;
 
@@ -69,7 +71,7 @@ button {
 }
 
 
-.header p {
+.brand p {
   margin-top: 5px;
 
   color: #6b7280;
@@ -78,7 +80,9 @@ button {
 }
 
 
-/* CONTAINER */
+/* =========================
+   CONTAINER
+========================= */
 
 .container {
   max-width: 1200px;
@@ -89,7 +93,9 @@ button {
 }
 
 
-/* BOTÕES */
+/* =========================
+   BOTÕES
+========================= */
 
 .btn-primary {
   border: none;
@@ -104,12 +110,26 @@ button {
 
   font-weight: 600;
 
-  transition: opacity 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.1s;
 }
 
 
 .btn-primary:hover {
   opacity: 0.88;
+}
+
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+
+.btn-primary:disabled {
+  opacity: 0.55;
+
+  cursor: wait;
 }
 
 
@@ -133,7 +153,16 @@ button {
 }
 
 
-/* DASHBOARD */
+.btn-secondary:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
 
 .dashboard {
   display: grid;
@@ -143,7 +172,7 @@ button {
 
   gap: 16px;
 
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 
@@ -157,7 +186,7 @@ button {
 
   padding: 22px;
 
-  min-height: 120px;
+  min-height: 125px;
 
   display: flex;
 
@@ -168,22 +197,28 @@ button {
 
 
 .kpi-label {
-  font-size: 14px;
-
   color: #6b7280;
+
+  font-size: 13px;
+
+  line-height: 1.4;
 }
 
 
 .kpi-value {
-  font-size: 30px;
-
   color: #111827;
+
+  font-size: 31px;
+
+  font-weight: 700;
 }
 
 
-/* SEÇÃO */
+/* =========================
+   PAINÉIS
+========================= */
 
-.section {
+.panel {
   background: #ffffff;
 
   border:
@@ -192,10 +227,12 @@ button {
   border-radius: 12px;
 
   padding: 24px;
+
+  margin-bottom: 24px;
 }
 
 
-.section-header {
+.panel-header {
   display: flex;
 
   align-items: flex-end;
@@ -204,18 +241,18 @@ button {
 
   gap: 20px;
 
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 
-.section-header h2 {
-  font-size: 20px;
-
+.panel-header h2 {
   color: #111827;
+
+  font-size: 20px;
 }
 
 
-.section-header p {
+.panel-header p {
   margin-top: 5px;
 
   color: #6b7280;
@@ -224,12 +261,60 @@ button {
 }
 
 
-/* FILTRO */
+.section-count {
+  min-width: 34px;
 
-.filters select {
-  min-width: 190px;
+  height: 30px;
 
-  padding: 10px 12px;
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 999px;
+
+  background: #f3f4f6;
+
+  color: #374151;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+
+/* =========================
+   GRÁFICO
+========================= */
+
+.chart-panel {
+  padding-bottom: 28px;
+}
+
+
+.month-filter {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+
+.month-filter label {
+  color: #6b7280;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+
+.month-filter select {
+  min-width: 160px;
+
+  padding: 9px 11px;
 
   border:
     1px solid #d1d5db;
@@ -244,43 +329,41 @@ button {
 }
 
 
-/* MENSAGEM */
+.chart-wrapper {
+  position: relative;
 
-.mensagem {
-  display: none;
+  width: 100%;
 
-  padding: 12px 14px;
-
-  margin-bottom: 18px;
-
-  border-radius: 8px;
-
-  font-size: 14px;
+  height: 300px;
 }
 
 
-.mensagem.visivel {
+#graficoCandidaturas {
+  width: 100%;
+
+  height: 100%;
+
   display: block;
-
-  background: #f3f4f6;
-
-  color: #374151;
 }
 
 
-/* GRID CANDIDATURAS */
+/* =========================
+   GRID DE CANDIDATURAS
+========================= */
 
 .candidaturas-grid {
   display: grid;
 
   grid-template-columns:
-    repeat(2, 1fr);
+    repeat(2, minmax(0, 1fr));
 
   gap: 16px;
 }
 
 
-/* CARD CANDIDATURA */
+/* =========================
+   CARD CANDIDATURA
+========================= */
 
 .candidatura-card {
   border:
@@ -313,18 +396,20 @@ button {
 
   align-items: flex-start;
 
-  gap: 16px;
+  gap: 14px;
 
-  margin-bottom: 14px;
+  margin-bottom: 15px;
 }
 
 
 .candidatura-vaga {
+  color: #111827;
+
   font-size: 17px;
 
   font-weight: 700;
 
-  color: #111827;
+  line-height: 1.35;
 }
 
 
@@ -337,16 +422,17 @@ button {
 }
 
 
-.status-badge {
-  display: inline-flex;
+.status-select {
+  max-width: 175px;
 
-  align-items: center;
+  padding: 6px 8px;
 
-  padding: 5px 9px;
+  border:
+    1px solid #d1d5db;
 
-  border-radius: 999px;
+  border-radius: 7px;
 
-  background: #f3f4f6;
+  background: #f9fafb;
 
   color: #374151;
 
@@ -354,7 +440,14 @@ button {
 
   font-weight: 600;
 
-  white-space: nowrap;
+  outline: none;
+}
+
+
+.status-select:disabled {
+  opacity: 0.55;
+
+  cursor: wait;
 }
 
 
@@ -362,9 +455,9 @@ button {
   display: grid;
 
   grid-template-columns:
-    repeat(2, 1fr);
+    repeat(2, minmax(0, 1fr));
 
-  gap: 12px;
+  gap: 13px;
 
   margin-top: 14px;
 }
@@ -380,20 +473,24 @@ button {
 
 
 .info-label {
-  font-size: 11px;
+  color: #9ca3af;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.05em;
 
   text-transform: uppercase;
-
-  letter-spacing: 0.04em;
-
-  color: #9ca3af;
 }
 
 
 .info-value {
+  color: #374151;
+
   font-size: 13px;
 
-  color: #374151;
+  line-height: 1.4;
 }
 
 
@@ -438,12 +535,14 @@ button {
 }
 
 
-/* ESTADO VAZIO */
+/* =========================
+   ESTADO VAZIO
+========================= */
 
 .estado-vazio {
   grid-column: 1 / -1;
 
-  padding: 50px 20px;
+  padding: 44px 20px;
 
   text-align: center;
 
@@ -453,18 +552,21 @@ button {
     1px dashed #d1d5db;
 
   border-radius: 10px;
+
+  font-size: 14px;
 }
 
 
-/* MODAL */
+/* =========================
+   MODAL
+========================= */
 
 .modal-overlay {
   position: fixed;
 
   inset: 0;
 
-  background:
-    rgba(17, 24, 39, 0.45);
+  z-index: 1000;
 
   display: flex;
 
@@ -474,7 +576,8 @@ button {
 
   padding: 20px;
 
-  z-index: 1000;
+  background:
+    rgba(17, 24, 39, 0.45);
 }
 
 
@@ -486,7 +589,7 @@ button {
 .modal {
   width: 100%;
 
-  max-width: 760px;
+  max-width: 780px;
 
   max-height: 90vh;
 
@@ -503,15 +606,17 @@ button {
 .modal-header {
   display: flex;
 
-  justify-content: space-between;
-
   align-items: flex-start;
+
+  justify-content: space-between;
 
   margin-bottom: 24px;
 }
 
 
 .modal-header h2 {
+  color: #111827;
+
   font-size: 21px;
 }
 
@@ -530,21 +635,28 @@ button {
 
   background: transparent;
 
+  color: #6b7280;
+
   font-size: 28px;
 
   line-height: 1;
-
-  color: #6b7280;
 }
 
 
-/* FORMULÁRIO */
+.btn-close:hover {
+  color: #111827;
+}
+
+
+/* =========================
+   FORMULÁRIO
+========================= */
 
 .form-grid {
   display: grid;
 
   grid-template-columns:
-    repeat(2, 1fr);
+    repeat(2, minmax(0, 1fr));
 
   gap: 16px;
 }
@@ -562,11 +674,11 @@ button {
 
 
 .form-group label {
+  color: #374151;
+
   font-size: 13px;
 
   font-weight: 600;
-
-  color: #374151;
 }
 
 
@@ -575,12 +687,12 @@ button {
 .form-group textarea {
   width: 100%;
 
+  padding: 10px 12px;
+
   border:
     1px solid #d1d5db;
 
   border-radius: 8px;
-
-  padding: 10px 12px;
 
   background: #ffffff;
 
@@ -602,7 +714,35 @@ button {
 }
 
 
-/* AÇÕES MODAL */
+/* =========================
+   MENSAGEM FORMULÁRIO
+========================= */
+
+.form-message {
+  display: none;
+
+  padding: 11px 13px;
+
+  margin-bottom: 14px;
+
+  border-radius: 8px;
+
+  background: #f3f4f6;
+
+  color: #374151;
+
+  font-size: 13px;
+}
+
+
+.form-message.visible {
+  display: block;
+}
+
+
+/* =========================
+   AÇÕES MODAL
+========================= */
 
 .modal-actions {
   display: flex;
@@ -611,8 +751,6 @@ button {
 
   gap: 10px;
 
-  margin-top: 10px;
-
   padding-top: 18px;
 
   border-top:
@@ -620,14 +758,17 @@ button {
 }
 
 
-/* RESPONSIVO */
+/* =========================
+   RESPONSIVO
+========================= */
 
-@media (max-width: 850px) {
+@media (max-width: 900px) {
 
   .dashboard {
     grid-template-columns:
       repeat(2, 1fr);
   }
+
 
   .candidaturas-grid {
     grid-template-columns: 1fr;
@@ -636,7 +777,7 @@ button {
 }
 
 
-@media (max-width: 600px) {
+@media (max-width: 650px) {
 
   .header-content {
     align-items: flex-start;
@@ -644,36 +785,61 @@ button {
     flex-direction: column;
   }
 
+
   .container {
     padding:
       24px 16px 40px;
   }
 
+
   .dashboard {
     grid-template-columns: 1fr;
   }
 
-  .section {
+
+  .panel {
     padding: 18px;
   }
 
-  .section-header {
+
+  .panel-header {
     align-items: stretch;
 
     flex-direction: column;
   }
 
-  .filters select {
-    width: 100%;
+
+  .month-filter {
+    justify-content: space-between;
   }
+
+
+  .month-filter select {
+    flex: 1;
+  }
+
 
   .form-grid {
     grid-template-columns: 1fr;
   }
 
+
+  .candidatura-topo {
+    flex-direction: column;
+  }
+
+
+  .status-select {
+    max-width: 100%;
+
+    width: 100%;
+  }
+
+
   .candidatura-info {
     grid-template-columns: 1fr;
   }
+
 
   .modal {
     padding: 20px;
