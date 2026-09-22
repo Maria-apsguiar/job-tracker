@@ -33,6 +33,11 @@
 
   <main class="container">
 
+
+    <!-- =========================
+         DASHBOARD
+    ========================== -->
+
     <section class="dashboard-grid">
 
       <div class="kpi-card">
@@ -93,6 +98,10 @@
     </section>
 
 
+    <!-- =========================
+         GRÁFICO POR DIA
+    ========================== -->
+
     <section class="panel">
 
       <div class="panel-header">
@@ -119,6 +128,10 @@
 
     </section>
 
+
+    <!-- =========================
+         ANÁLISES
+    ========================== -->
 
     <section class="analytics-grid">
 
@@ -215,6 +228,10 @@
     </section>
 
 
+    <!-- =========================
+         LISTA DE CANDIDATURAS
+    ========================== -->
+
     <section class="panel">
 
       <div class="panel-header">
@@ -296,10 +313,9 @@
   </main>
 
 
-  <footer class="footer">
-    Desenvolvido por Maria Aguiar
-  </footer>
-
+  <!-- =========================
+       MODAL NOVA CANDIDATURA
+  ========================== -->
 
   <div
     id="modalCandidatura"
@@ -531,4 +547,111 @@
 
             <input
               type="text"
-              id="salario_inform
+              id="salario_informado"
+            >
+          </div>
+
+
+          <div class="form-group form-full">
+            <label>Observações</label>
+
+            <textarea
+              id="observacoes"
+              rows="4"
+            ></textarea>
+          </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button
+            type="button"
+            class="btn-secondary"
+            onclick="fecharModal()"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            id="btnSalvar"
+            class="btn-primary"
+          >
+            Salvar candidatura
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       MODAL DETALHES
+  ========================== -->
+
+  <div
+    id="modalDetalhes"
+    class="modal-overlay"
+  >
+
+    <div class="modal modal-detalhes">
+
+      <div class="modal-header">
+
+        <div>
+          <h2 id="detalheTitulo">
+            Candidatura
+          </h2>
+
+          <p id="detalheEmpresa"></p>
+        </div>
+
+        <button
+          class="modal-close"
+          onclick="fecharModalDetalhes()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div
+        id="conteudoDetalhes"
+        class="detalhes-grid"
+      ></div>
+
+
+      <div class="detalhes-footer">
+
+        <button
+          class="btn-secondary"
+          onclick="fecharModalDetalhes()"
+        >
+          Fechar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="toast"
+    class="toast"
+  ></div>
+
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>
