@@ -81,9 +81,7 @@ document.addEventListener(
 );
 
 
-/* =========================================================
-   API
-========================================================= */
+/* API */
 
 
 async function carregarCandidaturas() {
@@ -133,10 +131,6 @@ async function carregarCandidaturas() {
 }
 
 
-/*
- * O Apps Script pode manter o POST aberto.
- * Por isso, não aguardamos a resposta.
- */
 function enviarPost(dados) {
 
   fetch(
@@ -165,9 +159,7 @@ function enviarPost(dados) {
 }
 
 
-/* =========================================================
-   DASHBOARD
-========================================================= */
+/* DASHBOARD */
 
 
 function atualizarDashboard() {
@@ -256,9 +248,7 @@ function atualizarDashboard() {
 }
 
 
-/* =========================================================
-   GRÁFICO MENSAL
-========================================================= */
+/* GRÁFICO MENSAL */
 
 
 function preencherFiltroMes() {
@@ -317,7 +307,7 @@ function preencherFiltroMes() {
     'todos';
 
   opcaoTodos.textContent =
-    'Todos os meses';
+    'Mês atual';
 
   select.appendChild(
     opcaoTodos
@@ -399,14 +389,6 @@ function desenharGraficoCandidaturas() {
     select.value;
 
 
-  /*
-   * Quando "Todos os meses" estiver selecionado,
-   * usamos o mês atual para manter o gráfico
-   * com uma escala diária coerente.
-   *
-   * Quando um mês específico estiver selecionado,
-   * usamos exatamente aquele mês.
-   */
   let ano;
   let mes;
 
@@ -438,14 +420,6 @@ function desenharGraficoCandidaturas() {
   }
 
 
-  /*
-   * Descobre quantos dias existem no mês.
-   *
-   * Exemplo:
-   * Setembro = 30
-   * Outubro = 31
-   * Fevereiro = 28 ou 29
-   */
   const quantidadeDias =
     new Date(
       ano,
@@ -454,12 +428,6 @@ function desenharGraficoCandidaturas() {
     ).getDate();
 
 
-  /*
-   * Cria a contagem de candidaturas
-   * para cada dia do mês.
-   *
-   * Todos os dias começam com 0.
-   */
   const contagem =
     {};
 
@@ -479,10 +447,6 @@ function desenharGraficoCandidaturas() {
   }
 
 
-  /*
-   * Conta somente as candidaturas
-   * pertencentes ao mês selecionado.
-   */
   candidaturas.forEach(
     candidatura => {
 
@@ -520,9 +484,6 @@ function desenharGraficoCandidaturas() {
   );
 
 
-  /*
-   * Cria os labels de todos os dias.
-   */
   const labels =
     Array.from(
       {
@@ -665,9 +626,7 @@ function desenharGraficoCandidaturas() {
 }
 
 
-/* =========================================================
-   GRÁFICOS DE PIZZA / ROSCA
-========================================================= */
+/* GRÁFICOS DE ROSCA */
 
 
 function desenharGraficosAnaliticos() {
@@ -996,9 +955,7 @@ function criarGraficoRosca(
 }
 
 
-/* =========================================================
-   LISTA
-========================================================= */
+/* LISTA */
 
 
 function alterarFiltroLista(
@@ -1380,9 +1337,7 @@ function renderizarLista() {
 }
 
 
-/* =========================================================
-   ATUALIZAÇÃO DE STATUS
-========================================================= */
+/* ATUALIZAÇÃO DE STATUS */
 
 
 function atualizarStatus(
@@ -1423,10 +1378,6 @@ function atualizarStatus(
   renderizarLista();
 
 
-  /*
-   * Atualiza novamente os dados após
-   * o Apps Script processar o POST.
-   */
   setTimeout(
     carregarCandidaturas,
     1200
@@ -1435,9 +1386,7 @@ function atualizarStatus(
 }
 
 
-/* =========================================================
-   MODAL NOVA CANDIDATURA
-========================================================= */
+/* MODAL NOVA CANDIDATURA */
 
 
 function abrirModalNovaCandidatura() {
@@ -1588,17 +1537,6 @@ async function salvarCandidatura(
   };
 
 
-  /*
-   * IMPORTANTE:
-   *
-   * Não usamos await aqui.
-   *
-   * O Web App do Apps Script pode deixar
-   * a resposta POST pendente.
-   *
-   * A requisição é enviada e o modal
-   * é fechado imediatamente.
-   */
   enviarPost(
     dados
   );
@@ -1629,10 +1567,6 @@ async function salvarCandidatura(
     'Salvar candidatura';
 
 
-  /*
-   * Dá tempo para o Apps Script gravar
-   * antes de atualizar a tela.
-   */
   setTimeout(
     carregarCandidaturas,
     1200
@@ -1641,9 +1575,7 @@ async function salvarCandidatura(
 }
 
 
-/* =========================================================
-   MODAL DE DETALHES
-========================================================= */
+/* MODAL DE DETALHES */
 
 
 function abrirDetalhes(
@@ -1932,9 +1864,7 @@ function fecharModalDetalhes() {
 }
 
 
-/* =========================================================
-   FORMATAÇÕES
-========================================================= */
+/* FORMATAÇÕES */
 
 
 function normalizarTexto(
@@ -2153,9 +2083,7 @@ function obterDataHoje() {
 }
 
 
-/* =========================================================
-   SEGURANÇA / UTILITÁRIOS
-========================================================= */
+/* SEGURANÇA / UTILITÁRIOS */
 
 
 function escaparHTML(
@@ -2237,4 +2165,3 @@ function mostrarToast(
     );
 
 }
-```
