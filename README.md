@@ -232,7 +232,7 @@ job-tracker/
 
 O projeto pode ser reproduzido utilizando a planilha modelo e os arquivos disponibilizados neste repositório.
 
-📊 **Planilha modelo:** [`Job_Tracker_Modelo.xlsx`](database/Job_Tracker_Modelo.xlsx)
+📊 **Planilha modelo:** [`Job_Tracker_Modelo.xlsx`]https://docs.google.com/spreadsheets/d/1ry2ZdEQ_Dao-Pbvvt2T4FOd6hE7GaJ_EEzCIlkJMzwo/edit?usp=sharing
 
 📖 **Guia de replicação:** [`guia-de-replicacao.md`](docs/guia-de-replicacao.md)
 
