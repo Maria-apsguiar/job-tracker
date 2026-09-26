@@ -266,4 +266,4 @@ O Job Tracker reúne conhecimentos de **dados, tecnologia, negócios e análise*
 
 **Área de interesse:** Análise de Dados | Business Intelligence | Dados e Automação
 
-[LinkedIn](https://www.linkedin.com/in/mariaaguiar/)
+[LinkedIn - Maria Aguiar](https://www.linkedin.com/in/mariaaguiar/)
